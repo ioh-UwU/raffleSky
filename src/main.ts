@@ -4,23 +4,15 @@ import { AtpAgent } from "@atproto/api";
  * @todo Replace all console.log()s with actual on-page messages for errors and stuff. 
  */
 
-// const agent = new AtpAgent({
-//     service: "https://bsky.social"
-// });
-// agent.login({
-//     identifier: process.env.USER,
-//     password: process.env.PASS
-// });
-
-function toggleElementVisibility(ids) {
+function toggleElementVisibility(ids:string[]) {
     for (const id of ids) {
         let element = document.getElementById(id);
         element.className = element.className === "hide" ? "show" : "hide";
-    }
+    };
 };
 
 function togglePasswordVisibility() {
-    var pwdInput = <HTMLInputElement>document.getElementById("password")
+    var pwdInput = <HTMLInputElement>document.getElementById("password");
     pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 };
 
@@ -38,28 +30,28 @@ raffleButton.addEventListener("click", () => runRaffle());
 
 (<HTMLInputElement>document.getElementById("identifier")).value = import.meta.env.VITE_USER;
 (<HTMLInputElement>document.getElementById("password")).value = import.meta.env.VITE_PASS;
-
+(<HTMLInputElement>document.getElementById("link")).value = import.meta.env.VITE_TEST_LINK;
 
 function setRaffleConfig() {
     var raffleConfig = {
         identifier: (<HTMLInputElement>document.getElementById("identifier")).value,
         password: (<HTMLInputElement>document.getElementById("password")).value,
-        follow: (<HTMLInputElement>document.getElementById("follow")).value,
-        like: (<HTMLInputElement>document.getElementById("like")).value,
-        repost: (<HTMLInputElement>document.getElementById("repost")).value,
-        comment:(<HTMLInputElement>document.getElementById("comment")).value,
-        image: (<HTMLInputElement>document.getElementById("image")).value,
-        winners: (<HTMLInputElement>document.getElementById("winners")).value,
+        follow: (<HTMLInputElement>document.getElementById("follow")).checked,
+        like: (<HTMLInputElement>document.getElementById("like")).checked,
+        repost: (<HTMLInputElement>document.getElementById("repost")).checked,
+        comment:(<HTMLInputElement>document.getElementById("comment")).checked,
+        image: (<HTMLInputElement>document.getElementById("image")).checked,
+        winners: (<HTMLInputElement>document.getElementById("winners")).valueAsNumber,
         link: (<HTMLInputElement>document.getElementById("link")).value,
-        blockList: (<HTMLInputElement>document.getElementById("block-list-check")).value,
+        blockList: (<HTMLInputElement>document.getElementById("block-list-check")).checked,
         blockedHandles: (<HTMLInputElement>document.getElementById("block-list")).value.split(" ")
     };
-    if (raffleConfig.comment === "off") {
-        raffleConfig.image = "off";
-    }
-    if (raffleConfig.blockList === "off") {
-        raffleConfig.blockedHandles = [""]
-    }
+    if (!raffleConfig.comment) {
+        raffleConfig.image = false;
+    };
+    if (!raffleConfig.blockList) {
+        raffleConfig.blockedHandles = []
+    };
     return raffleConfig;
 };
 
@@ -71,34 +63,49 @@ async function signIn(usr:string, pwd:string) {
         identifier: usr,
         password: pwd
     });
-    return agent
+    return agent;
 };
 
-async function getPost(agent:AtpAgent, link:string) {
+async function getHostInfo(agent:AtpAgent, link:string) {
     var splitUri = link.replace("//", "/").split("/");
-
     var linkType = link.substring(0, 5) === "at://" ? "at" : "https";
+    var actorParam = linkType === "https" ? splitUri[3] : splitUri[1];
 
-    var actorParam = linkType === "https" ? splitUri[-3] : splitUri[1];
-    var actor = agent.app.bsky.actor.getProfile({actor: actorParam});
-    console.log(actor)
-    var did = (await actor).data.did;
+    var profile = await agent.app.bsky.actor.getProfile({actor: actorParam});
 
-    var uri = `at://${did}/app.bsky.feed.post/${splitUri[-1]}`;
-    var handle = (await actor).data.handle;
-    // postInfo.postUri, postInfo.raffleHadle = uri, handle;
-    return {postUri: uri, raffleHandle: handle};
-}
+    var did = profile.data.did;
+    var uri = `at://${did}/app.bsky.feed.post/${splitUri[5]}`;
 
-async function getFollowing(uri, handle) {
+    var handle = profile.data.handle;
+    var avatar = profile.data.avatar;
+
+    return {postUri: uri, hostHandle: handle, hostAvatar: avatar};
+};
+
+async function getFollowing(agent, uri, handle) {
     /**
      * @todo add this
      */
-}
+};
+
+async function getLikes(agent, uri, handle) {
+    /**
+     * @todo add this
+     */
+};
 
 async function runRaffle() {
     var raffleConfig = setRaffleConfig();
-    var agent = signIn(raffleConfig.identifier, raffleConfig.password);
-    var postInfo = await getPost(await agent, raffleConfig.link)
-    console.log(postInfo)
+    var agent = await signIn(raffleConfig.identifier, raffleConfig.password);
+    var postInfo = await getHostInfo(agent, raffleConfig.link);
+    // Ensure the host of the raffle doesn't win.
+    if (!raffleConfig.blockedHandles.includes(postInfo.hostHandle)) {
+        raffleConfig.blockedHandles.push(postInfo.hostHandle);
+    };
+
+    var test = document.createElement("img");
+    test.src = postInfo.hostAvatar;
+    test.style.width="256px"
+    document.body.insertAdjacentElement("afterend", test)
+
 };

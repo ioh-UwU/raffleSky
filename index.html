@@ -27,17 +27,19 @@
         <h1>Starting to add some things. Check back later!</h1>
         
         <h2>Settings</h2>
-        <input type="checkbox" id="follow" autocomplete="off"> Follow<br>
-        <input type="checkbox" id="like" autocomplete="off"> Like<br>
-        <input type="checkbox" id="repost" autocomplete="off"> Repost<br>
-        <input type="checkbox" id="comment" autocomplete="off"> Comment
-        <span class="hide" id="image-checkbox">
-            <input type="checkbox" id="image" autocomplete="off"> with image
-        </span><br>
-        <label for="winners">Number of Winners: </label>
-        <input type="number" id="winners" placeholder="#" value="1"><br>
-        <input type="checkbox" id="block-list-check" autocomplete="off"> Block List<br>
-        <textarea class="hide" id="block-list" rows="5" cols="50" placeholder="Enter blocked handles separated by spaces.&#10;These users will be blocked from winning your raffle."></textarea>
+        <div>
+            <input type="checkbox" id="follow"  autocomplete="on"> Follow<br>
+            <input type="checkbox" id="like" autocomplete="off"> Like<br>
+            <input type="checkbox" id="repost" autocomplete="off"> Repost<br>
+            <input type="checkbox" id="comment" autocomplete="off"> Comment
+            <span class="hide" id="image-checkbox">
+                <input type="checkbox" id="image" autocomplete="off"> with image
+            </span><br>
+            <label for="winners">Number of Winners: </label>
+            <input type="number" id="winners" min="1" placeholder="#" value="1" oninput="validity.valid||(value='1');"><br>
+            <input type="checkbox" id="block-list-check" autocomplete="off"> Block List<br>
+            <textarea class="hide" id="block-list" rows="5" cols="50" placeholder="Enter blocked handles separated by spaces.&#10;These users will be blocked from winning your raffle."></textarea>
+        </div>
 
         <h2>Raffle Info</h2>
         <label for="identifier">Username</label><br>
@@ -50,7 +52,7 @@
         <input type="text" id="link" placeholder="https://... or at://..."><br><br>
         <button id="run-raffle"><b>Run Raffle</b></button>
 
-        <script type="module" src="/src/main.ts"></script>
+        <script id="script" type="module" src="/src/main.ts"></script>
 
     </body>
 </html>
