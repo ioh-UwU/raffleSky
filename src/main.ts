@@ -258,9 +258,24 @@ function commentEmbedFilter(comments:Object, embedTypes:Object) {
     return output;
 };
 
-function commentReplyFilter(comments:Object, hostHadle:string, requireSpecificReply:boolean, specificReplyContents:string) {
+function commentReplyFilter(comments:Object, hostHandle:string, requireSpecificReply:boolean, specificReplyContents:string) {
+    let output = [];
     for (let [_, comment] of Object.entries(comments)) {
-
+        let replies = comment["replies"]
+        if (replies.size > 0) {
+            for (let reply of replies) {
+                let handle = reply["post"]["author"]["handle"];
+                let contents = reply["post"]["record"]["text"];
+                if (handle === hostHandle) {
+                    if (requireSpecificReply) {
+                        let contentsCheck = specificReplyContents
+                    } else {
+                        output.push(comment);
+                        continue;
+                    };
+                };
+            };
+        };
     };
 };
 
@@ -296,7 +311,10 @@ async function runRaffle() {
         };
         if (raffleConfig.comment) {
             var comments = await getComments(agent, postInfo.postUri);
-            comments = commentEmbedFilter(comments, raffleConfig.embedTypes)
+            console.log(comments)
+            if (Object.values(raffleConfig.embedTypes).find((a) => {return a === true})) {
+                comments = commentEmbedFilter(comments, raffleConfig.embedTypes);
+            };
             if (raffleConfig.hostReply.enabled) {
                 comments = commentReplyFilter(
                     comments,
@@ -307,7 +325,7 @@ async function runRaffle() {
             };
         };
     };
-    console.log(comments)
+
     // var test = document.createElement("img");
     // test.src = postInfo.hostAvatar;
     // test.style.width="256px"
