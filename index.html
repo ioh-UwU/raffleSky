@@ -14,10 +14,12 @@
             }
             .show {
                 visibility: visible;
+                display:unset;
                 height: unset;
             }
             .hide {
                 visibility: hidden;
+                display:none;
                 height: 0px;
             }
         </style>
@@ -30,25 +32,55 @@
             <label for="winners">Number of Winners: </label>
             <input type="number" id="winners" min="1" placeholder="#" value="1" oninput="validity.valid||(value='1');"><br>
             
-            <input type="checkbox" id="follow"> Follow<br>
-            <input type="checkbox" id="like"> Like<br>
-            <input type="checkbox" id="repost"> Repost<br>
-            <input type="checkbox" id="comment"> Comment
-
-            <span class="hide" id="embed-config">
-                <input type="checkbox" id="image-embed"> with image
-                <input type="checkbox" id="video-embed"> with video
-                <input type="checkbox" id="gif-embed"> with GIF
-                <input type="checkbox" id="any-embed"> with embed
-            </span><br>
+            <input type="checkbox" id="follow">
+            <label for="follow">Follow</label><br>
             
-            <input type="checkbox" id="user-filter-check"> User Filter<br>
+            <input type="checkbox" id="like">
+            <label for="like">Like</label><br>
+
+            <input type="checkbox" id="repost">
+            <label for="repost">Repost</label><br>
+
+            <input type="checkbox" id="comment">
+            <label for="comment">Comment</label>
+
+            <div class="hide" id="embed-config">
+                <input type="checkbox" id="image-embed">
+                <label for="image-embed">with image</label>
+
+                <input type="checkbox" id="video-embed">
+                <label for="video-embed">with video</label>
+
+                <input type="checkbox" id="gif-embed">
+                <label for="gif-embed">with GIF</label>
+
+                <input type="checkbox" id="any-embed">
+                <label for="any-embed">with embed</label> <br>
+            </div>
+            <div class="hide" id="host-reply-div">
+                <input type="checkbox" id="host-reply">
+                <label for="host-reply">with host reply</label>
+                <div class="hide" id="specific-reply-div">
+                    <input type="checkbox" id="specific-reply">
+                    <label for="specific-reply">with specific text</label>
+                    <div class="hide" id="specific-reply-text">
+                        <br>
+                        <textarea id="reply-text" rows="5" cols="44" placeholder="Enter your reply text.&#10;&#10;For multiple responses, encase each valid reply in {{double curly brackets}}."></textarea>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+            <input type="checkbox" id="user-filter-check">
+            <label for="user-filter-check">User Filter</label><br>
             <div class="hide" id="user-filter">
-                <textarea id="filtered-users" rows="5" cols="50" placeholder="Enter handles separated by spaces.&#10;&#10;These users will be blocked from winning your raffle."></textarea><br>
-                <span>
-                    <input type="checkbox" id="host-blocks"> Users you've blocked
-                    <input type="checkbox" id="host-mutes"> Users you've muted
-                </span>
+                <textarea id="filtered-users" rows="5" cols="44" placeholder="Enter handles separated by spaces.&#10;&#10;These users will be blocked from winning your raffle."></textarea><br>
+                <div>
+                    <input type="checkbox" id="host-blocks">
+                    <label for="host-blocks">Users you've blocked</label>
+
+                    <input type="checkbox" id="host-mutes">
+                    <label for="host-mutes">Users you've muted</label>
+                </div>
             </div>
                 
         </div>

@@ -1,16 +1,17 @@
 import { AtpAgent } from "@atproto/api";
-import { link } from "fs";
+
 /** 
  * @todo Replace all console.log()s with actual on-page messages for errors and stuff. 
  */
 
 // Page functionality
 function toggleElementVisibility(ids:string[]) {
-    for (const id of ids) {
+    for (let id of ids) {
         let element = document.getElementById(id);
         element.className = element.className === "hide" ? "show" : "hide";
     };
 };
+
 function togglePasswordVisibility() {
     let pwdInput = <HTMLInputElement>document.getElementById("password");
     pwdInput.type = pwdInput.type === "password" ? "text" : "password";
@@ -24,7 +25,7 @@ const repostCheckbox = <HTMLInputElement>document.getElementById("repost");
 
 const commentCheckbox = <HTMLInputElement>document.getElementById("comment");
 commentCheckbox.checked = false;
-commentCheckbox.addEventListener("click", () => toggleElementVisibility(["embed-config"]));
+commentCheckbox.addEventListener("click", () => toggleElementVisibility(["embed-config", "host-reply-div"]));
 
 const imageEmbedCheckbox = <HTMLInputElement>document.getElementById("image-embed");
 imageEmbedCheckbox.addEventListener("click", () => {
@@ -52,6 +53,15 @@ anyEmbedCheckbox.addEventListener("click", () => {
         gifEmbedCheckbox.checked = false;
     };
 });
+const hostReplyCheckbox = <HTMLInputElement>document.getElementById("host-reply");
+hostReplyCheckbox.checked = false;
+hostReplyCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-div"])});
+
+const hostReplySpecificCheckbox = <HTMLInputElement>document.getElementById("specific-reply");
+hostReplySpecificCheckbox.checked = false;
+hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-text"])})
+
+const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
 
 const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filter-check");
 userFilterCheckbox.checked = false;
@@ -75,10 +85,12 @@ const linkInput = <HTMLInputElement>document.getElementById("link");
 const raffleButton = document.getElementById("run-raffle");
 raffleButton.addEventListener("click", () => runRaffle());
 
+
 // Testing parameters
 usernameInput.value = import.meta.env.VITE_USER;
 passwordInput.value = import.meta.env.VITE_PASS;
 linkInput.value = import.meta.env.VITE_TEST_LINK;
+
 
 // Config
 function setRaffleConfig() {
@@ -98,7 +110,12 @@ function setRaffleConfig() {
             gif: gifEmbedCheckbox.checked,
             any: anyEmbedCheckbox.checked
         },
-        
+        hostReply: {
+            enabled: hostReplyCheckbox.checked,
+            specific: hostReplySpecificCheckbox.checked,
+            text: hostReplyInput.value
+        },
+
         blockList: userFilterCheckbox.checked,
         hostBlocks: hostBlockCheckbox.checked,
         hostMutes: hostMuteCheckbox.checked,
@@ -106,6 +123,7 @@ function setRaffleConfig() {
     };
     return raffleConfig;
 };
+
 
 // API calls
 async function signIn(usr:string, pwd:string) {
@@ -134,6 +152,7 @@ async function getHostInfo(agent:AtpAgent, link:string) {
         hostDisplayName: displayName
     };
 };
+
 async function getBlocks(agent:AtpAgent) {
     let cumulativeBlocks = [];
     let enumCursor = "";
@@ -144,11 +163,12 @@ async function getBlocks(agent:AtpAgent) {
     };
 
     let output = [];
-    for (const block of cumulativeBlocks) {
+    for (let block of cumulativeBlocks) {
         output.push(block["handle"]);
     };
     return output;
 };
+
 async function getMutes(agent:AtpAgent) {
     let cumulativeMutes = [];
 
@@ -160,11 +180,12 @@ async function getMutes(agent:AtpAgent) {
     };
 
     let output = [];
-    for (const mute of cumulativeMutes) {
+    for (let mute of cumulativeMutes) {
         output.push(mute["handle"])
     };
     return output;
 };
+
 async function getFollows(agent:AtpAgent, hostActor:string) {
     let output = [];
 
@@ -176,17 +197,19 @@ async function getFollows(agent:AtpAgent, hostActor:string) {
     };
     return output;
 };
+
 async function getLikes(agent:AtpAgent, postUri:string) {
     let output = [];
 
     let enumCursor = "";
     while (enumCursor != undefined) {
-        var returnData = (await agent.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
+        let returnData = (await agent.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         output = output.concat(returnData.likes);
     };
     return output;
 };
+
 async function getReposts(agent:AtpAgent, postUri:string) {
     let output = [];
 
@@ -198,27 +221,48 @@ async function getReposts(agent:AtpAgent, postUri:string) {
     };
     return output;
 };
+
 async function getComments(agent:AtpAgent, postUri:string) {
-    return (await agent.getPostThread({uri: postUri, depth: 1})).data.thread["replies"];
+    return (await agent.getPostThread({uri: postUri, depth: 2})).data.thread["replies"];
 };
-function commentImageFilter(comments:{}, embedTypes:{}) {
-    var output = []
-    for (const comment in comments) {
-        try {
-            /**
-             * @todo fix this
-             */
-            let a = comment["post"]["embed"];
-            if (embedTypes["any"](embedTypes["image"] && a["$type"].includes("image")) || (embedTypes["video"] && a["$type"].includes("video"))) {
+
+function commentEmbedFilter(comments:Object, embedTypes:Object) {
+    let output = [];
+    for (let [_, comment] of Object.entries(comments)) {
+        try { // Check if embed exists.
+            let embedData = comment["post"]["embed"];
+            if (embedTypes["any"] && embedData != undefined){
                 output.push(comment);
-            } else if (embedTypes["gif"] && a["$type"].includes("external") && a["external"]["uri"].includes("//media.tenor.com/") && a["external"]["uri"].includes(".gif")) {
-                output.push(comment);           
-            }
-        } catch {console.log("thing errored lol")};
+                continue; 
+            };
+            try { // Check embed for image.
+                if (embedTypes["image"] && embedData["$type"].includes("image")) {
+                    output.push(comment);
+                    continue; 
+                }
+            } catch {};
+            try { // Check embed for video.
+                if (embedTypes["video"] && embedData["$type"].includes("video")) {
+                    output.push(comment);
+                    continue; 
+                }
+            } catch {};
+            try { // Check embed for GIF.
+                if (embedTypes["gif"] && embedData["external"]["uri"].includes("://media.tenor.com/") && embedData["external"]["uri"].includes(".gif")) {
+                    output.push(comment);
+                    continue; 
+                }
+            } catch {};
+        } catch {};
     };
     return output;
 };
 
+function commentReplyFilter(comments:Object, hostHadle:string, requireSpecificReply:boolean, specificReplyContents:string) {
+    for (let [_, comment] of Object.entries(comments)) {
+
+    };
+};
 
 // Raffle procedure
 async function runRaffle() {
@@ -252,9 +296,17 @@ async function runRaffle() {
         };
         if (raffleConfig.comment) {
             var comments = await getComments(agent, postInfo.postUri);
-            comments = commentImageFilter(comments, raffleConfig.embedTypes)
+            comments = commentEmbedFilter(comments, raffleConfig.embedTypes)
+            if (raffleConfig.hostReply.enabled) {
+                comments = commentReplyFilter(
+                    comments,
+                    postInfo.hostHandle,
+                    raffleConfig.hostReply.specific,
+                    raffleConfig.hostReply.text
+                );
+            };
         };
-    }
+    };
     console.log(comments)
     // var test = document.createElement("img");
     // test.src = postInfo.hostAvatar;
