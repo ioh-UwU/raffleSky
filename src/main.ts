@@ -1,111 +1,264 @@
 import { AtpAgent } from "@atproto/api";
-
+import { link } from "fs";
 /** 
  * @todo Replace all console.log()s with actual on-page messages for errors and stuff. 
  */
 
+// Page functionality
 function toggleElementVisibility(ids:string[]) {
     for (const id of ids) {
         let element = document.getElementById(id);
         element.className = element.className === "hide" ? "show" : "hide";
     };
 };
-
 function togglePasswordVisibility() {
-    var pwdInput = <HTMLInputElement>document.getElementById("password");
+    let pwdInput = <HTMLInputElement>document.getElementById("password");
     pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 };
 
-const passwordCheckbox = document.getElementById("password");
+// Initialize page elements
+const numWinnersInput = <HTMLInputElement>document.getElementById("winners");
+const followCheckbox = <HTMLInputElement>document.getElementById("follow");
+const likeCheckbox = <HTMLInputElement>document.getElementById("like");
+const repostCheckbox = <HTMLInputElement>document.getElementById("repost");
+
+const commentCheckbox = <HTMLInputElement>document.getElementById("comment");
+commentCheckbox.checked = false;
+commentCheckbox.addEventListener("click", () => toggleElementVisibility(["embed-config"]));
+
+const imageEmbedCheckbox = <HTMLInputElement>document.getElementById("image-embed");
+imageEmbedCheckbox.addEventListener("click", () => {
+    if (imageEmbedCheckbox.checked) {
+        anyEmbedCheckbox.checked = false;
+    };
+});
+const videoEmbedCheckbox = <HTMLInputElement>document.getElementById("video-embed");
+videoEmbedCheckbox.addEventListener("click", () => {
+    if (videoEmbedCheckbox.checked) {
+        anyEmbedCheckbox.checked = false;
+    };
+});
+const gifEmbedCheckbox = <HTMLInputElement>document.getElementById("gif-embed");
+gifEmbedCheckbox.addEventListener("click", () => {
+    if (gifEmbedCheckbox.checked) {
+        anyEmbedCheckbox.checked = false;
+    };
+});
+const anyEmbedCheckbox = <HTMLInputElement>document.getElementById("any-embed");
+anyEmbedCheckbox.addEventListener("click", () => {
+    if (anyEmbedCheckbox.checked) { 
+        imageEmbedCheckbox.checked = false;
+        videoEmbedCheckbox.checked = false;
+        gifEmbedCheckbox.checked = false;
+    };
+});
+
+const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filter-check");
+userFilterCheckbox.checked = false;
+userFilterCheckbox.addEventListener("click", () => toggleElementVisibility(["user-filter"]));
+
+const hostBlockCheckbox = <HTMLInputElement>document.getElementById("host-blocks");
+hostBlockCheckbox.checked = true;
+const hostMuteCheckbox = <HTMLInputElement>document.getElementById("host-mutes");
+hostMuteCheckbox.checked = true;
+const blockedUserInput = <HTMLInputElement>document.getElementById("filtered-users");
+
+const usernameInput = <HTMLInputElement>document.getElementById("identifier");
+
+const passwordInput = <HTMLInputElement>document.getElementById("password");
+const passwordCheckbox = <HTMLInputElement>document.getElementById("password-checkbox");
+passwordCheckbox.checked = false;
 passwordCheckbox.addEventListener("click", () => togglePasswordVisibility());
 
-const commentCheckbox = document.getElementById("comment");
-commentCheckbox.addEventListener("click", () => toggleElementVisibility(['image-checkbox']));
-
-const blockListCheckbox = document.getElementById("block-list-check");
-blockListCheckbox.addEventListener("click", () => toggleElementVisibility(['block-list']));
+const linkInput = <HTMLInputElement>document.getElementById("link");
 
 const raffleButton = document.getElementById("run-raffle");
 raffleButton.addEventListener("click", () => runRaffle());
 
-(<HTMLInputElement>document.getElementById("identifier")).value = import.meta.env.VITE_USER;
-(<HTMLInputElement>document.getElementById("password")).value = import.meta.env.VITE_PASS;
-(<HTMLInputElement>document.getElementById("link")).value = import.meta.env.VITE_TEST_LINK;
+// Testing parameters
+usernameInput.value = import.meta.env.VITE_USER;
+passwordInput.value = import.meta.env.VITE_PASS;
+linkInput.value = import.meta.env.VITE_TEST_LINK;
 
+// Config
 function setRaffleConfig() {
-    var raffleConfig = {
-        identifier: (<HTMLInputElement>document.getElementById("identifier")).value,
-        password: (<HTMLInputElement>document.getElementById("password")).value,
-        follow: (<HTMLInputElement>document.getElementById("follow")).checked,
-        like: (<HTMLInputElement>document.getElementById("like")).checked,
-        repost: (<HTMLInputElement>document.getElementById("repost")).checked,
-        comment:(<HTMLInputElement>document.getElementById("comment")).checked,
-        image: (<HTMLInputElement>document.getElementById("image")).checked,
-        winners: (<HTMLInputElement>document.getElementById("winners")).valueAsNumber,
-        link: (<HTMLInputElement>document.getElementById("link")).value,
-        blockList: (<HTMLInputElement>document.getElementById("block-list-check")).checked,
-        blockedHandles: (<HTMLInputElement>document.getElementById("block-list")).value.split(" ")
-    };
-    if (!raffleConfig.comment) {
-        raffleConfig.image = false;
-    };
-    if (!raffleConfig.blockList) {
-        raffleConfig.blockedHandles = []
+    let raffleConfig = {
+        identifier: usernameInput.value,
+        password: passwordInput.value,
+        link: linkInput.value,
+        winners: numWinnersInput.valueAsNumber,
+
+        follow: followCheckbox.checked,
+        like: likeCheckbox.checked,
+        repost: repostCheckbox.checked,
+        comment: commentCheckbox.checked,
+        embedTypes: {
+            image: imageEmbedCheckbox.checked,
+            video: videoEmbedCheckbox.checked,
+            gif: gifEmbedCheckbox.checked,
+            any: anyEmbedCheckbox.checked
+        },
+        
+        blockList: userFilterCheckbox.checked,
+        hostBlocks: hostBlockCheckbox.checked,
+        hostMutes: hostMuteCheckbox.checked,
+        blockedHandles: blockedUserInput.value.split(" ")
     };
     return raffleConfig;
 };
 
+// API calls
 async function signIn(usr:string, pwd:string) {
-    let agent = new AtpAgent({
-        service: "https://bsky.social"
-    });
-    await agent.login({
-        identifier: usr,
-        password: pwd
-    });
+    let agent = new AtpAgent({service: "https://bsky.social"});
+    await agent.login({identifier: usr, password: pwd});
     return agent;
 };
 
+// Raffle data requests
 async function getHostInfo(agent:AtpAgent, link:string) {
-    var splitUri = link.replace("//", "/").split("/");
-    var linkType = link.substring(0, 5) === "at://" ? "at" : "https";
-    var actorParam = linkType === "https" ? splitUri[3] : splitUri[1];
+    let splitUri = link.replace("//", "/").split("/");
+    let linkType = link.substring(0, 5) === "at://" ? "at" : "https";
+    let actorParam = linkType === "https" ? splitUri[3] : splitUri[1];
 
-    var profile = await agent.app.bsky.actor.getProfile({actor: actorParam});
+    let profile = await agent.app.bsky.actor.getProfile({actor: actorParam});
+    let did = profile.data.did;
 
-    var did = profile.data.did;
-    var uri = `at://${did}/app.bsky.feed.post/${splitUri[5]}`;
+    let uri = `at://${did}/app.bsky.feed.post/${splitUri[5]}`;
+    let handle = profile.data.handle;
+    let avatar = profile.data.avatar;
+    let displayName = profile.data.displayName;
+    return {
+        postUri: uri,
+        hostHandle: handle, 
+        hostAvatar: avatar, 
+        hostDisplayName: displayName
+    };
+};
+async function getBlocks(agent:AtpAgent) {
+    let cumulativeBlocks = [];
+    let enumCursor = "";
+    while (enumCursor != undefined) {
+        let returnData = (await agent.app.bsky.graph.getBlocks({limit: 100, cursor: enumCursor})).data;
+        enumCursor = returnData.cursor;
+        cumulativeBlocks = cumulativeBlocks.concat(returnData.blocks);
+    };
 
-    var handle = profile.data.handle;
-    var avatar = profile.data.avatar;
+    let output = [];
+    for (const block of cumulativeBlocks) {
+        output.push(block["handle"]);
+    };
+    return output;
+};
+async function getMutes(agent:AtpAgent) {
+    let cumulativeMutes = [];
 
-    return {postUri: uri, hostHandle: handle, hostAvatar: avatar};
+    let enumCursor = "";
+    while (enumCursor != undefined) {
+        let returnData = (await agent.app.bsky.graph.getMutes({limit: 100, cursor: enumCursor})).data;
+        enumCursor = returnData.cursor;
+        cumulativeMutes = cumulativeMutes.concat(returnData.mutes);
+    };
+
+    let output = [];
+    for (const mute of cumulativeMutes) {
+        output.push(mute["handle"])
+    };
+    return output;
+};
+async function getFollows(agent:AtpAgent, hostActor:string) {
+    let output = [];
+
+    let enumCursor = "";
+    while (enumCursor != undefined) {
+        let returnData = (await agent.getFollowers({actor: hostActor, limit: 100, cursor: enumCursor})).data;
+        enumCursor = returnData.cursor;
+        output = output.concat(returnData.followers);
+    };
+    return output;
+};
+async function getLikes(agent:AtpAgent, postUri:string) {
+    let output = [];
+
+    let enumCursor = "";
+    while (enumCursor != undefined) {
+        var returnData = (await agent.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
+        enumCursor = returnData.cursor;
+        output = output.concat(returnData.likes);
+    };
+    return output;
+};
+async function getReposts(agent:AtpAgent, postUri:string) {
+    let output = [];
+
+    let enumCursor = "";
+    while (enumCursor != undefined) {
+        let returnData = (await agent.getRepostedBy({uri: postUri, limit: 100, cursor: enumCursor})).data;
+        enumCursor = returnData.cursor;
+        output = output.concat(returnData.repostedBy);
+    };
+    return output;
+};
+async function getComments(agent:AtpAgent, postUri:string) {
+    return (await agent.getPostThread({uri: postUri, depth: 1})).data.thread["replies"];
+};
+function commentImageFilter(comments:{}, embedTypes:{}) {
+    var output = []
+    for (const comment in comments) {
+        try {
+            /**
+             * @todo fix this
+             */
+            let a = comment["post"]["embed"];
+            if (embedTypes["any"](embedTypes["image"] && a["$type"].includes("image")) || (embedTypes["video"] && a["$type"].includes("video"))) {
+                output.push(comment);
+            } else if (embedTypes["gif"] && a["$type"].includes("external") && a["external"]["uri"].includes("//media.tenor.com/") && a["external"]["uri"].includes(".gif")) {
+                output.push(comment);           
+            }
+        } catch {console.log("thing errored lol")};
+    };
+    return output;
 };
 
-async function getFollowing(agent, uri, handle) {
-    /**
-     * @todo add this
-     */
-};
 
-async function getLikes(agent, uri, handle) {
-    /**
-     * @todo add this
-     */
-};
-
+// Raffle procedure
 async function runRaffle() {
-    var raffleConfig = setRaffleConfig();
-    var agent = await signIn(raffleConfig.identifier, raffleConfig.password);
-    var postInfo = await getHostInfo(agent, raffleConfig.link);
-    // Ensure the host of the raffle doesn't win.
+    let raffleConfig = setRaffleConfig();
+    let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
+    let postInfo = await getHostInfo(agent, raffleConfig.link);
+
+    // Construct the user filter list.
+    if (raffleConfig.hostBlocks) {
+        raffleConfig.blockedHandles = raffleConfig.blockedHandles.concat(await getBlocks(agent));
+    };
+    if (raffleConfig.hostMutes) {
+        raffleConfig.blockedHandles = raffleConfig.blockedHandles.concat(await getMutes(agent));
+    };
+    // Ensure raffle host can't win.
     if (!raffleConfig.blockedHandles.includes(postInfo.hostHandle)) {
         raffleConfig.blockedHandles.push(postInfo.hostHandle);
     };
+    raffleConfig.blockedHandles = raffleConfig.blockedHandles.filter((a) => {return a != ""});
 
-    var test = document.createElement("img");
-    test.src = postInfo.hostAvatar;
-    test.style.width="256px"
-    document.body.insertAdjacentElement("afterend", test)
+    // To prevent fraud, raffles may only be run on your own posts. 
+    if (raffleConfig.identifier === postInfo.hostHandle) {
+        if (raffleConfig.follow) {
+            var follows = await getFollows(agent, postInfo.hostHandle);
+        };
+        if (raffleConfig.like) {
+            var likes = await getLikes(agent, postInfo.postUri);
+        };
+        if (raffleConfig.repost) {
+            var reposts = await getReposts(agent, postInfo.postUri);
+        };
+        if (raffleConfig.comment) {
+            var comments = await getComments(agent, postInfo.postUri);
+            comments = commentImageFilter(comments, raffleConfig.embedTypes)
+        };
+    }
+    console.log(comments)
+    // var test = document.createElement("img");
+    // test.src = postInfo.hostAvatar;
+    // test.style.width="256px"
+    // document.body.insertAdjacentElement("afterend", test)
 
 };
