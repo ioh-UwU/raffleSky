@@ -62,6 +62,9 @@ hostReplySpecificCheckbox.checked = false;
 hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-text"])})
 
 const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
+const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
+hostReplyAddButton.addEventListener("click", () => {})
+const hostReplyList = <HTMLInputElement>document.getElementById("reply-text-list");
 
 const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filter-check");
 userFilterCheckbox.checked = false;
@@ -268,7 +271,7 @@ function commentReplyFilter(comments:Object, hostHandle:string, requireSpecificR
                 let contents = reply["post"]["record"]["text"];
                 if (handle === hostHandle) {
                     if (requireSpecificReply) {
-                        let contentsCheck = specificReplyContents
+                        
                     } else {
                         output.push(comment);
                         continue;
