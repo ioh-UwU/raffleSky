@@ -1,9 +1,5 @@
 import { AtpAgent } from "@atproto/api";
 
-/** 
- * @todo Replace all console.log()s with actual on-page messages for errors and stuff. 
- */
-
 // Page functionality
 function toggleElementVisibility(ids:string[]) {
     for (let id of ids) {
@@ -61,10 +57,36 @@ const hostReplySpecificCheckbox = <HTMLInputElement>document.getElementById("spe
 hostReplySpecificCheckbox.checked = false;
 hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-text"])})
 
+
 const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
-const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
-hostReplyAddButton.addEventListener("click", () => {})
 const hostReplyList = <HTMLInputElement>document.getElementById("reply-text-list");
+hostReplyInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+        createSpecificReplyTag();
+    };
+});
+
+const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
+hostReplyAddButton.addEventListener("click", () => {createSpecificReplyTag()});
+function createSpecificReplyTag() {
+    if (hostReplyInput.value.trim() != "") {
+        let newReply = document.createElement("button");
+        newReply.textContent = hostReplyInput.value.trim();
+        hostReplyList.appendChild(newReply);
+        newReply.addEventListener("click", () => {newReply.remove()});
+    };
+    hostReplyInput.value = "";
+};
+
+function getSpecificReplies() {
+    let output = []
+    for (let hostSpecificReply of hostReplyList.children) {
+        output.push(hostSpecificReply.textContent);
+    };
+    return output.length > 0 ? output : [""];
+};
+const replyCaseSensitiveCheckbox = <HTMLInputElement>document.getElementById("case-sensitive");
+const replyExactMatchCheckbox = <HTMLInputElement>document.getElementById("exact-match");
 
 const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filter-check");
 userFilterCheckbox.checked = false;
@@ -101,8 +123,8 @@ function setRaffleConfig() {
         identifier: usernameInput.value,
         password: passwordInput.value,
         link: linkInput.value,
-        winners: numWinnersInput.valueAsNumber,
 
+        winners: numWinnersInput.valueAsNumber,
         follow: followCheckbox.checked,
         like: likeCheckbox.checked,
         repost: repostCheckbox.checked,
@@ -116,9 +138,10 @@ function setRaffleConfig() {
         hostReply: {
             enabled: hostReplyCheckbox.checked,
             specific: hostReplySpecificCheckbox.checked,
-            text: hostReplyInput.value
+            specificReplies: getSpecificReplies(),
+            caseSensitive: replyCaseSensitiveCheckbox.checked,
+            exact: replyExactMatchCheckbox.checked
         },
-
         blockList: userFilterCheckbox.checked,
         hostBlocks: hostBlockCheckbox.checked,
         hostMutes: hostMuteCheckbox.checked,
@@ -261,18 +284,35 @@ function commentEmbedFilter(comments:Object, embedTypes:Object) {
     return output;
 };
 
-function commentReplyFilter(comments:Object, hostHandle:string, requireSpecificReply:boolean, specificReplyContents:string) {
+function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Object) {
     let output = [];
     for (let [_, comment] of Object.entries(comments)) {
-        let replies = comment["replies"]
-        if (replies.size > 0) {
+        let replies = comment["replies"];
+        if (replies.length > 0) {
             for (let reply of replies) {
                 let handle = reply["post"]["author"]["handle"];
                 let contents = reply["post"]["record"]["text"];
+                console.log(handle, contents)
                 if (handle === hostHandle) {
-                    if (requireSpecificReply) {
-                        
+                    console.log("host reply!")
+                    if (replyConfig["specific"] && !(replyConfig["specificReplies"][0] === "")) {
+                        let validReplies = replyConfig["specificReplies"]
+                        let isValidReply = false;
+                        for (let validReply of validReplies) {
+                            if (!replyConfig["caseSensitive"]) {
+                                validReply = validReply.toLocaleLowerCase();
+                                contents = contents.toLocaleLowerCase();
+                            };
+                            isValidReply = replyConfig["exact"] ? isValidReply = contents === validReply : contents.includes(validReply); 
+                            if (isValidReply) {break};
+                        };
+                        if (isValidReply) {
+                            console.log("valid reply! (specific)")
+                            output.push(comment);
+                            continue;
+                        };
                     } else {
+                        console.log("valid reply!")
                         output.push(comment);
                         continue;
                     };
@@ -280,6 +320,7 @@ function commentReplyFilter(comments:Object, hostHandle:string, requireSpecificR
             };
         };
     };
+    return output;
 };
 
 // Raffle procedure
@@ -314,7 +355,6 @@ async function runRaffle() {
         };
         if (raffleConfig.comment) {
             var comments = await getComments(agent, postInfo.postUri);
-            console.log(comments)
             if (Object.values(raffleConfig.embedTypes).find((a) => {return a === true})) {
                 comments = commentEmbedFilter(comments, raffleConfig.embedTypes);
             };
@@ -322,11 +362,11 @@ async function runRaffle() {
                 comments = commentReplyFilter(
                     comments,
                     postInfo.hostHandle,
-                    raffleConfig.hostReply.specific,
-                    raffleConfig.hostReply.text
+                    raffleConfig.hostReply
                 );
             };
         };
+        console.log(comments);
     };
 
     // var test = document.createElement("img");
