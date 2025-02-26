@@ -7,6 +7,9 @@
         <meta name="description" content="Run raffles on Bluesky posts through the API!">
         <meta name="author" content="iohtheprotogen">
         <style>
+            textarea {
+                resize: none;
+            }
             .tip {
                 font-size: small;
                 font-style: italic;
@@ -65,7 +68,7 @@
                     <label for="specific-reply">with specific text</label>
                     <div class="hide" id="specific-reply-text">
                         <br>
-                        <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then hit 'Add' to add it to the list.&#10;Click an item to remove it from the list."></textarea>
+                        <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then hit 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                         <br>
                         <input type="checkbox" id="case-sensitive">
                         <label for="case-sensitive">Case Sensitive</label>

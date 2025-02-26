@@ -292,9 +292,7 @@ function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Obje
             for (let reply of replies) {
                 let handle = reply["post"]["author"]["handle"];
                 let contents = reply["post"]["record"]["text"];
-                console.log(handle, contents)
                 if (handle === hostHandle) {
-                    console.log("host reply!")
                     if (replyConfig["specific"] && !(replyConfig["specificReplies"][0] === "")) {
                         let validReplies = replyConfig["specificReplies"]
                         let isValidReply = false;
@@ -307,12 +305,10 @@ function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Obje
                             if (isValidReply) {break};
                         };
                         if (isValidReply) {
-                            console.log("valid reply! (specific)")
                             output.push(comment);
                             continue;
                         };
                     } else {
-                        console.log("valid reply!")
                         output.push(comment);
                         continue;
                     };
@@ -366,7 +362,11 @@ async function runRaffle() {
                 );
             };
         };
-        console.log(comments);
+        console.log("Follows: ", follows);
+        console.log("Likes: ", likes);
+        console.log("Reposts: ", reposts);
+        console.log("Comments: ", comments);
+        console.log("Block List: ", raffleConfig.blockedHandles);
     };
 
     // var test = document.createElement("img");
