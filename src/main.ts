@@ -125,6 +125,13 @@ const rerollButton = document.getElementById("reroll");
 rerollButton.addEventListener("click", () => rerollWinners());
 const displayWinners = document.getElementById("winner-grid");
 
+
+// Testing parameters
+usernameInput.value = import.meta.env.VITE_USER;
+passwordInput.value = import.meta.env.VITE_PASS;
+linkInput.value = import.meta.env.VITE_TEST_LINK;
+
+
 // Config
 function setRaffleConfig() {
     let raffleConfig = {
