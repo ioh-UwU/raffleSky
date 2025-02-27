@@ -467,7 +467,6 @@ function rerollWinners() {
             };
         };
     };
-    console.log(rerollCandidates.length)
 };
 
 // Raffle procedure
