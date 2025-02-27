@@ -1,4 +1,7 @@
 import { AtpAgent } from "@atproto/api";
+import { profile } from "console";
+
+var rerollCandidates = [];
 
 // Page functionality
 function toggleElementVisibility(ids:string[]) {
@@ -15,6 +18,11 @@ function togglePasswordVisibility() {
 
 // Initialize page elements
 const numWinnersInput = <HTMLInputElement>document.getElementById("winners");
+numWinnersInput.addEventListener("keyup", (event) => {
+    if (event.key === "Escape") {
+        numWinnersInput.value = "1";
+    };
+});
 const followCheckbox = <HTMLInputElement>document.getElementById("follow");
 const likeCheckbox = <HTMLInputElement>document.getElementById("like");
 const repostCheckbox = <HTMLInputElement>document.getElementById("repost");
@@ -63,6 +71,8 @@ const hostReplyList = <HTMLInputElement>document.getElementById("reply-text-list
 hostReplyInput.addEventListener("keyup", (event) => {
     if (event.key === "Enter") {
         createSpecificReplyTag();
+    } else if (event.key === "Escape") {
+        hostReplyList.value = "";
     };
 });
 const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
@@ -110,14 +120,11 @@ raffleButton.addEventListener("click", () => runRaffle());
 
 const winnerSection = document.getElementById("winner-section");
 const clearWinnersButton = document.getElementById("clear-winners");
-clearWinnersButton.addEventListener("click", () => {
-    for (let child of displayWinners.children) {
-        child.remove();
-    };
-});
+clearWinnersButton.addEventListener("click", () => clearWinners());
 const rerollButton = document.getElementById("reroll");
-rerollButton.addEventListener("click", () => {});
-const displayWinners = document.getElementById("winners");
+rerollButton.addEventListener("click", () => rerollWinners());
+const displayWinners = document.getElementById("winner-grid");
+
 
 // Testing parameters
 usernameInput.value = import.meta.env.VITE_USER;
@@ -161,6 +168,7 @@ function setRaffleConfig() {
 
 // API calls
 async function signIn(usr:string, pwd:string) {
+    usr = usr[0] === "@" ? usr.substring(1) : usr;
     let agent = new AtpAgent({service: "https://bsky.social"});
     await agent.login({identifier: usr, password: pwd});
     return agent;
@@ -378,7 +386,88 @@ function pickWinners(candidates:Array<Object>, numWinners:number) {
         let winnerIndex = Math.floor(Math.random() * candidates.length)
         winners.push(candidates.splice(winnerIndex, 1)[0]);
     };
-    return winners;
+    winnerSection.className = "show";
+    displayWinners.className = "show";
+    return [winners, candidates];
+};
+
+function addWinner(winner:Object) {
+    let handle = winner["handle"];
+    let avatar = winner["avatar"];
+    let profile = `https://bsky.app/profile/${handle}`;
+    let name = winner["displayName"] != "" ? winner["displayName"] : handle;
+
+    let winnerSpan = document.createElement("span");
+    winnerSpan.id = handle;
+    winnerSpan.className = "winner";
+    
+    let pfp = document.createElement("img");
+    pfp.src = avatar;
+    pfp.alt = `Avatar for Bluesky user ${handle}`
+    pfp.className = "winner-pfp";
+    winnerSpan.appendChild(pfp);
+
+    let infoDiv = document.createElement("div");
+    infoDiv.id = `${handle}-info`;
+    infoDiv.className = "winner-info";
+    winnerSpan.appendChild(infoDiv);
+
+    let displayName = document.createElement("p");
+    displayName.innerText = name;
+    displayName.className = "winner-display-name";
+    infoDiv.appendChild(displayName);
+
+    let displayHandle = document.createElement("p");
+    displayHandle.innerText = handle;
+    displayHandle.className = "winner-handle";
+    infoDiv.appendChild(displayHandle);
+
+    let profileLink = document.createElement("a");
+    profileLink.href = profile;
+    profileLink.innerText = "Link to Profile";
+    profileLink.className = "winner-profile";
+    infoDiv.appendChild(profileLink);
+
+    winnerSpan.addEventListener("click", () => toggleReroll(infoDiv.id))
+
+    return winnerSpan
+};
+
+function clearWinners() {
+    while (displayWinners.children.length > 0) {
+        displayWinners.children[0].remove();
+    };
+};
+
+function toggleReroll(targetId:string) {
+    let selection = document.getElementById(targetId);
+    console.log(selection.className)
+    if (selection.className === "winner-info") {
+        selection.className = "winner-info-reroll-select";
+    } else if (selection.className === "winner-info-reroll-select") {
+        selection.className = "winner-info";
+    } else if (selection.className === "winner-info-rerolled") {
+        selection.className = "winner-info-reroll-select-again";
+    } else if ((selection.className === "winner-info-reroll-select-again")) {
+        selection.className = "winner-info-rerolled"
+    };
+};
+
+function rerollWinners() {
+    for (let winner of displayWinners.children) {
+        for (let child of winner.children) {
+            if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
+                if (rerollCandidates.length > 0) { 
+                    let newWinnerData = pickWinners(rerollCandidates, 1);
+                    rerollCandidates = newWinnerData[1];
+                    let newWinner = addWinner(newWinnerData[0][0]);
+                    displayWinners.replaceChild(newWinner, winner);
+                    document.getElementById(`${newWinner.id}-info`).className = "winner-info-rerolled";
+                };
+            };
+        };
+    };
+    console.log(rerollCandidates.length)
 };
 
 // Raffle procedure
@@ -425,14 +514,17 @@ async function runRaffle() {
             };
             comments = getCommentActors(comments);
         };
-        let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles)
+        let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
 
         if (candidates.length > 0) {
-            var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
-        } else {
-            var winners = [];
+            var winnerData = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
+            var winners = winnerData[0];
+            rerollCandidates = winnerData[1];
         };
-        console.log(winners)
+        clearWinners();
+        for (let winner of winners) {
+            displayWinners.appendChild(addWinner(winner));
+        };
     };
 
     // var test = document.createElement("img");
