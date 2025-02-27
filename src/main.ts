@@ -65,7 +65,6 @@ hostReplyInput.addEventListener("keyup", (event) => {
         createSpecificReplyTag();
     };
 });
-
 const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
 hostReplyAddButton.addEventListener("click", () => {createSpecificReplyTag()});
 function createSpecificReplyTag() {
@@ -77,7 +76,6 @@ function createSpecificReplyTag() {
     };
     hostReplyInput.value = "";
 };
-
 function getSpecificReplies() {
     let output = []
     for (let hostSpecificReply of hostReplyList.children) {
@@ -197,7 +195,6 @@ async function getBlocks(agent:AtpAgent) {
 
 async function getMutes(agent:AtpAgent) {
     let cumulativeMutes = [];
-
     let enumCursor = "";
     while (enumCursor != undefined) {
         let returnData = (await agent.app.bsky.graph.getMutes({limit: 100, cursor: enumCursor})).data;
@@ -214,7 +211,6 @@ async function getMutes(agent:AtpAgent) {
 
 async function getFollows(agent:AtpAgent, hostActor:string) {
     let output = [];
-
     let enumCursor = "";
     while (enumCursor != undefined) {
         let returnData = (await agent.getFollowers({actor: hostActor, limit: 100, cursor: enumCursor})).data;
@@ -225,20 +221,22 @@ async function getFollows(agent:AtpAgent, hostActor:string) {
 };
 
 async function getLikes(agent:AtpAgent, postUri:string) {
-    let output = [];
-
+    let likes = [];
     let enumCursor = "";
     while (enumCursor != undefined) {
         let returnData = (await agent.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
-        output = output.concat(returnData.likes);
+        likes = likes.concat(returnData.likes);
+    };
+    let output = [];
+    for (let like of likes) {
+        output.push(like["actor"])
     };
     return output;
 };
 
 async function getReposts(agent:AtpAgent, postUri:string) {
     let output = [];
-
     let enumCursor = "";
     while (enumCursor != undefined) {
         let returnData = (await agent.getRepostedBy({uri: postUri, limit: 100, cursor: enumCursor})).data;
@@ -283,7 +281,6 @@ function commentEmbedFilter(comments:Object, embedTypes:Object) {
     };
     return output;
 };
-
 function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Object) {
     let output = [];
     for (let [_, comment] of Object.entries(comments)) {
@@ -315,6 +312,13 @@ function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Obje
                 };
             };
         };
+    };
+    return output;
+};
+function getCommentActors(comments:Object) {
+    let output = [];
+    for (let [_, comment] of Object.entries(comments)) {
+        output.push(comment["post"]["author"]);
     };
     return output;
 };
@@ -361,6 +365,7 @@ async function runRaffle() {
                     raffleConfig.hostReply
                 );
             };
+            comments = getCommentActors(comments);
         };
         console.log("Follows: ", follows);
         console.log("Likes: ", likes);
