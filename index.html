@@ -6,27 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Run raffles on Bluesky posts through the API!">
         <meta name="author" content="iohtheprotogen">
-        <style>
-            textarea {
-                resize: none;
-            }
-            .tip {
-                font-size: small;
-                font-style: italic;
-                line-height: 1px;
-            }
-            .show {
-                visibility: visible;
-                display:unset;
-                height: unset;
-            }
-            .hide {
-                visibility: hidden;
-                display:none;
-                height: 0px;
-            }
-        </style>
+        <style src="/src/style.css"></style>
         <title>Rafflesky</title>
+        <!-- TODO: Create favicon -->
     </head>
     <body>
         <h1>Starting to add some things. Check back later!</h1>
@@ -34,35 +16,38 @@
             <h2>Settings</h2>
             <label for="winners">Number of Winners: </label>
             <input type="number" id="winners" min="1" placeholder="#" value="1" oninput="validity.valid||(value='1');"><br>
-            
+            <!-- Require Follower -->
             <input type="checkbox" id="follow">
             <label for="follow">Follow</label><br>
-            
+            <!-- Require Like -->
             <input type="checkbox" id="like">
             <label for="like">Like</label><br>
-
+            <!-- Require Repost -->
             <input type="checkbox" id="repost">
             <label for="repost">Repost</label><br>
-
+            <!-- Require Comment -->
             <input type="checkbox" id="comment">
             <label for="comment">Comment</label>
-
+            <!-- Comment Embed Filters -->
             <div class="hide" id="embed-config">
+                <!-- Image -->
                 <input type="checkbox" id="image-embed">
                 <label for="image-embed">with image</label>
-
+                <!-- Video -->
                 <input type="checkbox" id="video-embed">
                 <label for="video-embed">with video</label>
-
+                <!-- GIF -->
                 <input type="checkbox" id="gif-embed">
                 <label for="gif-embed">with GIF</label>
-
+                <!-- Any Embed -->
                 <input type="checkbox" id="any-embed">
                 <label for="any-embed">with embed</label> <br>
             </div>
+            <!-- Require Host Reply -->
             <div class="hide" id="host-reply-div">
                 <input type="checkbox" id="host-reply">
                 <label for="host-reply">with host reply</label>
+                <!-- Specific Host Reply Filters -->
                 <div class="hide" id="specific-reply-div">
                     <input type="checkbox" id="specific-reply">
                     <label for="specific-reply">with specific text</label>
@@ -70,46 +55,57 @@
                         <br>
                         <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then hit 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                         <br>
+                        <!-- Case Sensitive -->
                         <input type="checkbox" id="case-sensitive">
                         <label for="case-sensitive">Case Sensitive</label>
+                        <!-- Exact Match -->
                         <input type="checkbox" id="exact-match">
                         <label for="specific-reply">Exact Match</label>
                         <br>
                         <button id="add-reply-button"><b>Add</b></button>
-                        <div id="reply-text-list"></div>
+                        <div id="reply-text-list"><!-- Created Dynamically --></div>
                     </div>
                 </div>
             </div>
             <br><br>
+            <!-- Deny List -->
             <input type="checkbox" id="user-filter-check">
             <label for="user-filter-check">User Filter</label><br>
             <div class="hide" id="user-filter">
                 <textarea id="filtered-users" rows="5" cols="44" placeholder="Enter handles separated by spaces.&#10;&#10;These users will be blocked from winning your raffle."></textarea><br>
                 <div>
+                    <!-- Import Host Blocked Users -->
                     <input type="checkbox" id="host-blocks">
                     <label for="host-blocks">Users you've blocked</label>
-
+                    <!-- Import Host Muted Users -->
                     <input type="checkbox" id="host-mutes">
                     <label for="host-mutes">Users you've muted</label>
                 </div>
-            </div>
-                
+            </div>    
         </div>
         <div>
             <h2>Raffle Info</h2>
+            <!-- Username -->
             <label for="identifier">Username</label><br>
             <input type="text" id="identifier" placeholder="handle.extension"><br><br>
-            
+            <!-- Password -->
             <label for="password">App Password</label><br>
             <input type="password" id="password" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx">
             <input type="checkbox" id="password-checkbox"> Show Password<br>
             <p class="tip">Don't have one? <a href="https://bsky.app/settings/app-passwords">Generate it in your Bluesky settings.</a></p><br>
-            
+            <!-- Post Link -->
             <label for="link">Link to post:</label><br>
             <input type="text" id="link" placeholder="https://... or at://..."><br><br>
             <button id="run-raffle"><b>Run Raffle</b></button>
+        </div><br>
+        <div id="winner-section">
+            <span>
+                <button id=clear-winners><b>Clear Winners</b></button>
+                <button id="reroll"><b>Reroll Selected</b></button>
+            </span>
+            <div class="hide" id="winners"><!-- Created Dynamically --></div>
         </div>
-        <script id="script" type="module" src="/src/main.ts"></script>
 
+        <script id="script" type="module" src="/src/main.ts"></script>
     </body>
 </html>

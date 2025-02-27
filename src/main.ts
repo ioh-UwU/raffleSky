@@ -68,7 +68,7 @@ hostReplyInput.addEventListener("keyup", (event) => {
 const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
 hostReplyAddButton.addEventListener("click", () => {createSpecificReplyTag()});
 function createSpecificReplyTag() {
-    if (hostReplyInput.value.trim() != "") {
+    if (hostReplyInput.value.trim() !== "") {
         let newReply = document.createElement("button");
         newReply.textContent = hostReplyInput.value.trim();
         hostReplyList.appendChild(newReply);
@@ -108,6 +108,16 @@ const linkInput = <HTMLInputElement>document.getElementById("link");
 const raffleButton = document.getElementById("run-raffle");
 raffleButton.addEventListener("click", () => runRaffle());
 
+const winnerSection = document.getElementById("winner-section");
+const clearWinnersButton = document.getElementById("clear-winners");
+clearWinnersButton.addEventListener("click", () => {
+    for (let child of displayWinners.children) {
+        child.remove();
+    };
+});
+const rerollButton = document.getElementById("reroll");
+rerollButton.addEventListener("click", () => {});
+const displayWinners = document.getElementById("winners");
 
 // Testing parameters
 usernameInput.value = import.meta.env.VITE_USER;
@@ -180,7 +190,7 @@ async function getHostInfo(agent:AtpAgent, link:string) {
 async function getBlocks(agent:AtpAgent) {
     let cumulativeBlocks = [];
     let enumCursor = "";
-    while (enumCursor != undefined) {
+    while (enumCursor !== undefined) {
         let returnData = (await agent.app.bsky.graph.getBlocks({limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         cumulativeBlocks = cumulativeBlocks.concat(returnData.blocks);
@@ -196,7 +206,7 @@ async function getBlocks(agent:AtpAgent) {
 async function getMutes(agent:AtpAgent) {
     let cumulativeMutes = [];
     let enumCursor = "";
-    while (enumCursor != undefined) {
+    while (enumCursor !== undefined) {
         let returnData = (await agent.app.bsky.graph.getMutes({limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         cumulativeMutes = cumulativeMutes.concat(returnData.mutes);
@@ -212,7 +222,7 @@ async function getMutes(agent:AtpAgent) {
 async function getFollows(agent:AtpAgent, hostActor:string) {
     let output = [];
     let enumCursor = "";
-    while (enumCursor != undefined) {
+    while (enumCursor !== undefined) {
         let returnData = (await agent.getFollowers({actor: hostActor, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         output = output.concat(returnData.followers);
@@ -223,7 +233,7 @@ async function getFollows(agent:AtpAgent, hostActor:string) {
 async function getLikes(agent:AtpAgent, postUri:string) {
     let likes = [];
     let enumCursor = "";
-    while (enumCursor != undefined) {
+    while (enumCursor !== undefined) {
         let returnData = (await agent.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         likes = likes.concat(returnData.likes);
@@ -238,7 +248,7 @@ async function getLikes(agent:AtpAgent, postUri:string) {
 async function getReposts(agent:AtpAgent, postUri:string) {
     let output = [];
     let enumCursor = "";
-    while (enumCursor != undefined) {
+    while (enumCursor !== undefined) {
         let returnData = (await agent.getRepostedBy({uri: postUri, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         output = output.concat(returnData.repostedBy);
@@ -255,7 +265,7 @@ function commentEmbedFilter(comments:Object, embedTypes:Object) {
     for (let [_, comment] of Object.entries(comments)) {
         try { // Check if embed exists.
             let embedData = comment["post"]["embed"];
-            if (embedTypes["any"] && embedData != undefined){
+            if (embedTypes["any"] && embedData !== undefined){
                 output.push(comment);
                 continue; 
             };
@@ -323,6 +333,54 @@ function getCommentActors(comments:Object) {
     return output;
 };
 
+function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<string>) {
+    let prevBuffer = [];
+    let output = [];
+    let firstGroup = true;
+    for (let group of candidateGroups) {
+        if (group != undefined) {
+            if (firstGroup) {
+                firstGroup = false;
+                prevBuffer = group;
+                continue;
+            };
+            for (let [_, candidate] of Object.entries(group)) {
+                if (!denyList.includes(candidate["handle"])) {
+                    for (let prev of prevBuffer) {
+                        if (candidate["handle"] === prev["handle"]) {
+                            output.push(candidate);
+                            break;
+                        };
+                    };
+                };
+            };
+            prevBuffer = output;
+            output = [];
+        };
+    };
+    output = prevBuffer;
+    return output;
+};
+
+function shuffleArray(array:Array<any>) {
+    let output = [];
+    for (let iRange = array.length; iRange > 0; iRange--) {
+        let i = Math.floor(Math.random() * iRange)
+        output.push(array.splice(i, 1)[0]);
+    };
+    return output;
+};
+function pickWinners(candidates:Array<Object>, numWinners:number) {
+    candidates = shuffleArray(candidates);
+    
+    let winners = [];
+    for (let roll = 0; roll < numWinners; roll++) {
+        let winnerIndex = Math.floor(Math.random() * candidates.length)
+        winners.push(candidates.splice(winnerIndex, 1)[0]);
+    };
+    return winners;
+};
+
 // Raffle procedure
 async function runRaffle() {
     let raffleConfig = setRaffleConfig();
@@ -367,11 +425,14 @@ async function runRaffle() {
             };
             comments = getCommentActors(comments);
         };
-        console.log("Follows: ", follows);
-        console.log("Likes: ", likes);
-        console.log("Reposts: ", reposts);
-        console.log("Comments: ", comments);
-        console.log("Block List: ", raffleConfig.blockedHandles);
+        let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles)
+
+        if (candidates.length > 0) {
+            var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
+        } else {
+            var winners = [];
+        };
+        console.log(winners)
     };
 
     // var test = document.createElement("img");
