@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Run raffles on Bluesky posts through the API!">
         <meta name="author" content="iohtheprotogen">
-        <style src="/src/style.css"></style>
+        <link rel="stylesheet" href="/src/style.css">
         <title>Rafflesky</title>
         <!-- TODO: Create favicon -->
     </head>
@@ -98,14 +98,11 @@
             <input type="text" id="link" placeholder="https://... or at://..."><br><br>
             <button id="run-raffle"><b>Run Raffle</b></button>
         </div><br>
-        <div id="winner-section">
-            <span>
-                <button id=clear-winners><b>Clear Winners</b></button>
-                <button id="reroll"><b>Reroll Selected</b></button>
-            </span>
-            <div class="hide" id="winners"><!-- Created Dynamically --></div>
-        </div>
-
+        <span class="hide" id="winner-section">
+            <button id=clear-winners><b>Clear Winners</b></button>
+            <button id="reroll"><b>Reroll Selected</b></button>
+        </span><br><br>
+        <div class="hide" id="winner-grid"><!-- Created Dynamically --></div>
         <script id="script" type="module" src="/src/main.ts"></script>
     </body>
 </html>

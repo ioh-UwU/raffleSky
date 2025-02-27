@@ -16,3 +16,61 @@ textarea {
     display:none;
     height: 0px;
 }
+/* Winner Display Style Components */
+.winner-grid {
+    display: grid;
+    width: 100%;
+    justify-self: center;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    align-content: space-evenly;
+
+}
+.winner {
+    display:inline-grid;
+    grid-template-columns: 33% 67%;
+    width:31%;
+    background-color: cornflowerblue;
+    margin: 1%;
+}
+.winner-pfp {
+    align-self: center;
+    justify-self: center;
+    height: 90%;
+    width:90%;
+    border-radius: 50%;
+    margin:2%;
+}
+.winner-info {
+    background-color:aliceblue;
+    width:100%;
+}
+.winner-info-reroll-select {
+    background-color: rgb(255, 213, 222);
+    width:100%;
+}
+.winner-info-reroll-select-again {
+    background-color: rgb(255, 213, 222);
+    width:100%;
+}
+.winner-info-rerolled {
+    background-color:rgb(175, 244, 190);
+    width:100%;
+}
+.winner-display-name {
+    font-weight: bold;
+    font-size: clamp(10px, 1.5vw, 50px);
+    justify-self: center;
+    margin-top: 5%;
+    margin-bottom: 1%;
+}
+.winner-handle {
+    font-size: clamp(10px, 1vw, 50px);
+    justify-self: center;
+    margin-top:2.5%
+}
+.winner-profile {
+    font-size: clamp(10px, 1vw, 50px);
+    align-self: end;
+    justify-self: end;
+}
