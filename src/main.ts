@@ -525,10 +525,4 @@ async function runRaffle() {
             displayWinners.appendChild(addWinner(winner));
         };
     };
-
-    // var test = document.createElement("img");
-    // test.src = postInfo.hostAvatar;
-    // test.style.width="256px"
-    // document.body.insertAdjacentElement("afterend", test)
-
 };
