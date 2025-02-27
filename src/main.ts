@@ -1,4 +1,5 @@
 import { AtpAgent } from "@atproto/api";
+import { error } from "console";
 
 var rerollCandidates = [];
 
@@ -13,6 +14,61 @@ function toggleElementVisibility(ids:string[]) {
 function togglePasswordVisibility() {
     let pwdInput = <HTMLInputElement>document.getElementById("password");
     pwdInput.type = pwdInput.type === "password" ? "text" : "password";
+};
+
+function fadeInElement(element:HTMLElement, msDuration:number) {
+    if (element.className === "hide") {
+        element.className = "show"
+        const step = 0.05; // 20 times
+        const delay = msDuration / 20;
+        let opacity = 0;
+        let timer = setInterval(() => {
+            opacity += step;
+            if (opacity > 1) {
+                opacity = 1;
+                clearInterval(timer);
+            };
+            element.style.opacity = opacity.toPrecision(2);
+        }, delay);
+    };
+};
+function fadeOutElement(element:HTMLElement, msDuration:number) {
+    if (element.className === "show") { 
+        const step = 0.05; // 20 times
+        const delay = msDuration / 20;
+        let opacity = 1;
+        let timer = setInterval(() => {
+            opacity -= step;
+            if (opacity < 0) {
+                opacity = 0;
+                clearInterval(timer);
+            };
+            element.style.opacity = opacity.toPrecision(2);
+        }, delay);
+    };
+};
+
+function fadeElement(element:HTMLElement, type:string, msDuration:number) {
+    const step= 0.1; // 10 times
+    const delay = msDuration / 10;
+    if (type === "in") {
+        element.className = "show";
+        for (let opacity = 0; opacity < 1; opacity += step) {
+            setTimeout(() => {
+                element.style.opacity = opacity.toPrecision(2);
+            }, delay);
+            console.log(element.style.opacity)
+        };
+    } else if (type === "out") {
+        for (let opacity = 1; opacity > 0; opacity += step) {
+            opacity = opacity < 0.001 ? 0 : opacity;
+            setTimeout(() => {
+                element.style.opacity = <string>opacity.toPrecision(2);
+            }, delay);
+            console.log(element.style.opacity)
+        };
+        element.className = "hide";
+    };
 };
 
 // Initialize page elements
@@ -80,6 +136,7 @@ function createSpecificReplyTag() {
     if (hostReplyInput.value.trim() !== "") {
         let newReply = document.createElement("button");
         newReply.textContent = hostReplyInput.value.trim();
+        newReply.className = "reply-tag";
         hostReplyList.appendChild(newReply);
         newReply.addEventListener("click", () => {newReply.remove()});
     };
@@ -127,11 +184,11 @@ const displayWinners = document.getElementById("winner-grid");
 const errorText = document.getElementById("error");
 
 function showError(text:string) {
-    errorText.className = "show";
     errorText.textContent = text;
+    fadeInElement(errorText, 500);
     setTimeout(() => {
-        errorText.className = "hide";
-    }, 5000);
+        fadeOutElement(errorText, 3000);
+    }, 3000);
 };
 
 // Testing parameters
