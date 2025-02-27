@@ -1,5 +1,4 @@
 import { AtpAgent } from "@atproto/api";
-import { profile } from "console";
 
 var rerollCandidates = [];
 
@@ -125,6 +124,15 @@ const rerollButton = document.getElementById("reroll");
 rerollButton.addEventListener("click", () => rerollWinners());
 const displayWinners = document.getElementById("winner-grid");
 
+const errorText = document.getElementById("error");
+
+function showError(text:string) {
+    errorText.className = "show";
+    errorText.textContent = text;
+    setTimeout(() => {
+        errorText.className = "hide";
+    }, 5000);
+};
 
 // Testing parameters
 usernameInput.value = import.meta.env.VITE_USER;
@@ -170,8 +178,12 @@ function setRaffleConfig() {
 async function signIn(usr:string, pwd:string) {
     usr = usr[0] === "@" ? usr.substring(1) : usr;
     let agent = new AtpAgent({service: "https://bsky.social"});
-    await agent.login({identifier: usr, password: pwd});
-    return agent;
+    try {
+        await agent.login({identifier: usr, password: pwd});
+        return agent;
+    } catch {
+        return null;
+    }
 };
 
 // Raffle data requests
@@ -473,6 +485,14 @@ function rerollWinners() {
 async function runRaffle() {
     let raffleConfig = setRaffleConfig();
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
+    if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === true})) {
+        showError("No raffle options set!")
+        return;
+    };
+    if (agent === null) {
+        showError("Invalid username or password.")
+        return;
+    };
     let postInfo = await getHostInfo(agent, raffleConfig.link);
 
     // Construct the user filter list.
@@ -519,10 +539,16 @@ async function runRaffle() {
             var winnerData = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
             var winners = winnerData[0];
             rerollCandidates = winnerData[1];
+        } else {
+            showError("No viable candidates. No winners!")
+            return;
         };
         clearWinners();
         for (let winner of winners) {
             displayWinners.appendChild(addWinner(winner));
         };
+    } else {
+        showError("You must be the author of this post to run a raffle on it!")
+        return;
     };
 };
