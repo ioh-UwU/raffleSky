@@ -1,5 +1,4 @@
 import { AtpAgent } from "@atproto/api";
-import { error } from "console";
 
 var rerollCandidates = [];
 
@@ -45,29 +44,6 @@ function fadeOutElement(element:HTMLElement, msDuration:number) {
             };
             element.style.opacity = opacity.toPrecision(2);
         }, delay);
-    };
-};
-
-function fadeElement(element:HTMLElement, type:string, msDuration:number) {
-    const step= 0.1; // 10 times
-    const delay = msDuration / 10;
-    if (type === "in") {
-        element.className = "show";
-        for (let opacity = 0; opacity < 1; opacity += step) {
-            setTimeout(() => {
-                element.style.opacity = opacity.toPrecision(2);
-            }, delay);
-            console.log(element.style.opacity)
-        };
-    } else if (type === "out") {
-        for (let opacity = 1; opacity > 0; opacity += step) {
-            opacity = opacity < 0.001 ? 0 : opacity;
-            setTimeout(() => {
-                element.style.opacity = <string>opacity.toPrecision(2);
-            }, delay);
-            console.log(element.style.opacity)
-        };
-        element.className = "hide";
     };
 };
 
@@ -439,25 +415,18 @@ function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<stri
     return output;
 };
 
-function shuffleArray(array:Array<any>) {
-    let output = [];
-    for (let iRange = array.length; iRange > 0; iRange--) {
-        let i = Math.floor(Math.random() * iRange)
-        output.push(array.splice(i, 1)[0]);
-    };
-    return output;
-};
-function pickWinners(candidates:Array<Object>, numWinners:number) {
-    candidates = shuffleArray(candidates);
-    
+function pickWinners(candidates:Array<Object>, numWinners:number, reroll?:boolean) {
+    if (!reroll) {
+        clearWinners();
+    }
     let winners = [];
     for (let roll = 0; roll < numWinners; roll++) {
-        let winnerIndex = Math.floor(Math.random() * candidates.length)
-        winners.push(candidates.splice(winnerIndex, 1)[0]);
+        let winnerIndex = Math.floor(Math.random() * candidates.length);
+        winners.push(candidates.splice(winnerIndex, 1));
+        winners = winners.flat();
     };
-    winnerSection.className = "show";
-    displayWinners.className = "show";
-    return [winners, candidates];
+    rerollCandidates = candidates;
+    return winners;
 };
 
 function addWinner(winner:Object) {
@@ -498,7 +467,6 @@ function addWinner(winner:Object) {
     infoDiv.appendChild(profileLink);
 
     winnerSpan.addEventListener("click", () => toggleReroll(infoDiv.id))
-
     return winnerSpan
 };
 
@@ -506,11 +474,12 @@ function clearWinners() {
     while (displayWinners.children.length > 0) {
         displayWinners.children[0].remove();
     };
+    winnerSection.className = "hide";
+    displayWinners.className = "hide";
 };
 
 function toggleReroll(targetId:string) {
     let selection = document.getElementById(targetId);
-    console.log(selection.className)
     if (selection.className === "winner-info") {
         selection.className = "winner-info-reroll-select";
     } else if (selection.className === "winner-info-reroll-select") {
@@ -523,15 +492,14 @@ function toggleReroll(targetId:string) {
 };
 
 function rerollWinners() {
-    for (let winner of displayWinners.children) {
-        for (let child of winner.children) {
+    for (let oldWinner of displayWinners.children) {
+        for (let child of oldWinner.children) {
             if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
-                if (rerollCandidates.length > 0) { 
-                    let newWinnerData = pickWinners(rerollCandidates, 1);
-                    rerollCandidates = newWinnerData[1];
-                    let newWinner = addWinner(newWinnerData[0][0]);
-                    displayWinners.replaceChild(newWinner, winner);
-                    document.getElementById(`${newWinner.id}-info`).className = "winner-info-rerolled";
+                if (rerollCandidates.length > 0) {
+                    let newWinner = pickWinners(rerollCandidates, 1, true)[0];
+                    let newWinnerElement = addWinner(newWinner);
+                    displayWinners.replaceChild(newWinnerElement, oldWinner);
+                    document.getElementById(`${newWinnerElement.id}-info`).className = "winner-info-rerolled";
                 };
             };
         };
@@ -540,9 +508,11 @@ function rerollWinners() {
 
 // Raffle procedure
 async function runRaffle() {
+    clearWinners()
     let raffleConfig = setRaffleConfig();
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
-    if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === true})) {
+    
+    if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
         showError("No raffle options set!")
         return;
     };
@@ -591,19 +561,17 @@ async function runRaffle() {
             comments = getCommentActors(comments);
         };
         let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
-
         if (candidates.length > 0) {
-            var winnerData = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
-            var winners = winnerData[0];
-            rerollCandidates = winnerData[1];
+            var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
         } else {
             showError("No viable candidates. No winners!")
             return;
         };
-        clearWinners();
         for (let winner of winners) {
             displayWinners.appendChild(addWinner(winner));
         };
+        winnerSection.className = "show";
+        displayWinners.className = "show";
     } else {
         showError("You must be the author of this post to run a raffle on it!")
         return;
