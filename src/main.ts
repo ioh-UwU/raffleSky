@@ -1,5 +1,4 @@
 import { AtpAgent } from "@atproto/api";
-import { error } from "console";
 
 var rerollCandidates = [];
 
@@ -18,7 +17,7 @@ function togglePasswordVisibility() {
 
 function fadeInElement(element:HTMLElement, msDuration:number) {
     if (element.className === "hide") {
-        element.className = "show"
+        element.className = "show";
         const step = 0.05; // 20 times
         const delay = msDuration / 20;
         let opacity = 0;
@@ -95,7 +94,7 @@ hostReplyCheckbox.addEventListener("click", () => {toggleElementVisibility(["spe
 
 const hostReplySpecificCheckbox = <HTMLInputElement>document.getElementById("specific-reply");
 hostReplySpecificCheckbox.checked = false;
-hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-text"])})
+hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-text"])});
 
 
 const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
@@ -134,7 +133,7 @@ function createSpecificReplyTag() {
     hostReplyInput.value = "";
 };
 function getSpecificReplies() {
-    let output = []
+    let output = [];
     for (let hostSpecificReply of hostReplyList.children) {
         output.push(hostSpecificReply.textContent);
     };
@@ -165,7 +164,7 @@ const linkInput = <HTMLInputElement>document.getElementById("link");
 const raffleButton = <HTMLInputElement>document.getElementById("run-raffle");
 raffleButton.formTarget = null;
 
-const userField = document.getElementById("user-field")
+const userField = document.getElementById("user-field");
 userField.onsubmit = (_) => {
     runRaffle();
     return false;
@@ -231,7 +230,7 @@ async function signIn(usr:string, pwd:string) {
         return agent;
     } catch {
         return null;
-    }
+    };
 };
 
 // Raffle data requests
@@ -308,7 +307,7 @@ async function getLikes(agent:AtpAgent, postUri:string) {
     };
     let output = [];
     for (let like of likes) {
-        output.push(like["actor"])
+        output.push(like["actor"]);
     };
     return output;
 };
@@ -341,19 +340,19 @@ function commentEmbedFilter(comments:Object, embedTypes:Object) {
                 if (embedTypes["image"] && embedData["$type"].includes("image")) {
                     output.push(comment);
                     continue; 
-                }
+                };
             } catch {};
             try { // Check embed for video.
                 if (embedTypes["video"] && embedData["$type"].includes("video")) {
                     output.push(comment);
                     continue; 
-                }
+                };
             } catch {};
             try { // Check embed for GIF.
                 if (embedTypes["gif"] && embedData["external"]["uri"].includes("://media.tenor.com/") && embedData["external"]["uri"].includes(".gif")) {
                     output.push(comment);
                     continue; 
-                }
+                };
             } catch {};
         } catch {};
     };
@@ -369,7 +368,7 @@ function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Obje
                 let contents = reply["post"]["record"]["text"];
                 if (handle === hostHandle) {
                     if (replyConfig["specific"] && !(replyConfig["specificReplies"][0] === "")) {
-                        let validReplies = replyConfig["specificReplies"]
+                        let validReplies = replyConfig["specificReplies"];
                         let isValidReply = false;
                         for (let validReply of validReplies) {
                             if (!replyConfig["caseSensitive"]) {
@@ -456,7 +455,7 @@ function addWinner(winner:Object) {
     
     let pfp = document.createElement("img");
     pfp.src = avatar;
-    pfp.alt = `Avatar for Bluesky user ${handle}`
+    pfp.alt = `Avatar for Bluesky user ${handle}`;
     pfp.className = "winner-pfp";
     winnerSpan.appendChild(pfp);
 
@@ -481,8 +480,8 @@ function addWinner(winner:Object) {
     profileLink.className = "winner-profile";
     infoDiv.appendChild(profileLink);
 
-    winnerSpan.addEventListener("click", () => toggleReroll(infoDiv.id))
-    return winnerSpan
+    winnerSpan.addEventListener("click", () => toggleReroll(infoDiv.id));
+    return winnerSpan;
 };
 
 function clearWinners() {
@@ -502,7 +501,7 @@ function toggleReroll(targetId:string) {
     } else if (selection.className === "winner-info-rerolled") {
         selection.className = "winner-info-reroll-select-again";
     } else if ((selection.className === "winner-info-reroll-select-again")) {
-        selection.className = "winner-info-rerolled"
+        selection.className = "winner-info-rerolled";
     };
     rerollButton.className = "hide";
     for (let element of displayWinners.children) {
@@ -510,8 +509,8 @@ function toggleReroll(targetId:string) {
             if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
                 rerollButton.className = "show";
                 break;
-            }
-        }
+            };
+        };
         if (rerollButton.className === "show") {
             break;
         };
@@ -535,9 +534,9 @@ function rerollWinners() {
 
 // Raffle procedure
 async function runRaffle() {
-    errorText.textContent = "Please wait..."
-    fadeInElement(errorText, 500)
-    clearWinners()
+    errorText.textContent = "Please wait...";
+    fadeInElement(errorText, 500);
+    clearWinners();
     let raffleConfig = setRaffleConfig();
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
     
@@ -602,9 +601,9 @@ async function runRaffle() {
         winnerSection.className = "show";
         displayWinners.className = "show";
 
-        errorText.className = "hide"
+        errorText.className = "hide";
         errorText.style.opacity = "0";
-        errorText.textContent = "unset"
+        errorText.textContent = "unset";
 
         document.getElementById("scroll-point").scrollIntoView({
             behavior: "smooth",

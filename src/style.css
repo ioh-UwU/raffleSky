@@ -1,7 +1,9 @@
 html {
     background-color: #161e27;
 }
-
+link [rel="icon"] {
+    border-radius: 50%;
+}
 .component-group {
     padding-top: 1%;
     background-color: #212c39;
@@ -151,7 +153,7 @@ textarea {
 
 .primary-option {
     transform: scale(2);
-    margin:2%
+    margin:2%;
 }
 .secondary-option {
     transform: scale(1.5);
@@ -234,7 +236,7 @@ textarea {
 .winner-handle {
     font-size: clamp(10px, 1vw, 50px);
     justify-self: center;
-    margin-top:2.5%
+    margin-top:2.5%;
 }
 .winner-profile {
     font-size: clamp(10px, 1vw, 50px);
