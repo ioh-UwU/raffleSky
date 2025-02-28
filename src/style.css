@@ -20,8 +20,15 @@ html {
 }
 
 .num-winners-label {
-    line-height: 20pt;
     font-size: larger;
+    line-height: 20pt;
+}
+input[type="number"] {
+    width:160px;
+    line-height: 20pt;
+    font-size: medium;
+    text-align: center;
+    font-weight: bold;
 }
 
 .embed-options {
@@ -137,6 +144,9 @@ textarea {
     border-color: #212c39;
     margin-top: 1%;
     margin-bottom: 1%;
+}
+.long {
+    width: 60%;
 }
 
 .primary-option {

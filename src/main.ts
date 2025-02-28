@@ -1,4 +1,5 @@
 import { AtpAgent } from "@atproto/api";
+import { error } from "console";
 
 var rerollCandidates = [];
 
@@ -104,17 +105,31 @@ hostReplyInput.addEventListener("keyup", (event) => {
         createSpecificReplyTag();
     } else if (event.key === "Escape") {
         hostReplyList.value = "";
+    } else if (event.key === "Delete") {
+        while (hostReplyList.children.length > 0) {
+            hostReplyList.children[0].remove();
+        };
     };
 });
 const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
 hostReplyAddButton.addEventListener("click", () => {createSpecificReplyTag()});
 function createSpecificReplyTag() {
-    if (hostReplyInput.value.trim() !== "") {
-        let newReply = document.createElement("button");
-        newReply.textContent = hostReplyInput.value.trim();
-        newReply.className = "reply-tag";
-        hostReplyList.appendChild(newReply);
-        newReply.addEventListener("click", () => {newReply.remove()});
+    let newReplyText = hostReplyInput.value.trim();
+    if (newReplyText !== "") {
+        let newComment = true;
+        for (let replyTag of hostReplyList.children) {
+            if (newReplyText === (<Element>replyTag).textContent) {
+                newComment = false;
+                break;
+            };
+        };
+        if (newComment) {
+            let newReply = document.createElement("button");
+            newReply.textContent = hostReplyInput.value.trim();
+            newReply.className = "reply-tag";
+            hostReplyList.appendChild(newReply);
+            newReply.addEventListener("click", () => {newReply.remove()});
+        };
     };
     hostReplyInput.value = "";
 };
@@ -524,6 +539,8 @@ function rerollWinners() {
 
 // Raffle procedure
 async function runRaffle() {
+    errorText.textContent = "Please wait..."
+    fadeInElement(errorText, 500)
     clearWinners()
     let raffleConfig = setRaffleConfig();
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
@@ -588,9 +605,11 @@ async function runRaffle() {
         };
         winnerSection.className = "show";
         displayWinners.className = "show";
-        // document.getElementById("seettings").scrollIntoView({
-        //     block: "start"
-        // });
+
+        errorText.className = "hide"
+        errorText.style.opacity = "0";
+        errorText.textContent = "unset"
+
         document.getElementById("scroll-point").scrollIntoView({
             behavior: "smooth",
             block: "start"
