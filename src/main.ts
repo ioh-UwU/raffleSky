@@ -188,10 +188,6 @@ function showError(text:string) {
     }, 3000);
 };
 
-// Testing parameters
-usernameInput.value = import.meta.env.VITE_USER;
-passwordInput.value = import.meta.env.VITE_PASS;
-linkInput.value = import.meta.env.VITE_TEST_LINK;
 
 // Config
 function setRaffleConfig() {
