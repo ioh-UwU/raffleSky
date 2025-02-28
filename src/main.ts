@@ -147,8 +147,14 @@ passwordCheckbox.addEventListener("click", () => togglePasswordVisibility());
 
 const linkInput = <HTMLInputElement>document.getElementById("link");
 
-const raffleButton = document.getElementById("run-raffle");
-raffleButton.addEventListener("click", () => runRaffle());
+const raffleButton = <HTMLInputElement>document.getElementById("run-raffle");
+raffleButton.formTarget = null;
+
+const userField = document.getElementById("user-field")
+userField.onsubmit = (_) => {
+    runRaffle();
+    return false;
+};
 
 const winnerSection = document.getElementById("winner-section");
 const clearWinnersButton = document.getElementById("clear-winners");
@@ -163,7 +169,7 @@ function showError(text:string) {
     errorText.textContent = text;
     fadeInElement(errorText, 500);
     setTimeout(() => {
-        fadeOutElement(errorText, 3000);
+        fadeOutElement(errorText, 1000);
     }, 3000);
 };
 
@@ -171,7 +177,6 @@ function showError(text:string) {
 usernameInput.value = import.meta.env.VITE_USER;
 passwordInput.value = import.meta.env.VITE_PASS;
 linkInput.value = import.meta.env.VITE_TEST_LINK;
-
 
 // Config
 function setRaffleConfig() {
@@ -205,7 +210,6 @@ function setRaffleConfig() {
     };
     return raffleConfig;
 };
-
 
 // API calls
 async function signIn(usr:string, pwd:string) {
@@ -267,7 +271,7 @@ async function getMutes(agent:AtpAgent) {
 
     let output = [];
     for (let mute of cumulativeMutes) {
-        output.push(mute["handle"])
+        output.push(mute["handle"]);
     };
     return output;
 };
@@ -489,6 +493,18 @@ function toggleReroll(targetId:string) {
     } else if ((selection.className === "winner-info-reroll-select-again")) {
         selection.className = "winner-info-rerolled"
     };
+    rerollButton.className = "hide";
+    for (let element of displayWinners.children) {
+        for (let child of element.children) {
+            if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
+                rerollButton.className = "show";
+                break;
+            }
+        }
+        if (rerollButton.className === "show") {
+            break;
+        };
+    };
 };
 
 function rerollWinners() {
@@ -513,11 +529,11 @@ async function runRaffle() {
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
     
     if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
-        showError("No raffle options set!")
+        showError("No raffle options set!");
         return;
     };
     if (agent === null) {
-        showError("Invalid username or password.")
+        showError("Invalid username or password.");
         return;
     };
     let postInfo = await getHostInfo(agent, raffleConfig.link);
@@ -564,7 +580,7 @@ async function runRaffle() {
         if (candidates.length > 0) {
             var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
         } else {
-            showError("No viable candidates. No winners!")
+            showError("No viable candidates. No winners!");
             return;
         };
         for (let winner of winners) {
@@ -572,8 +588,15 @@ async function runRaffle() {
         };
         winnerSection.className = "show";
         displayWinners.className = "show";
+        // document.getElementById("seettings").scrollIntoView({
+        //     block: "start"
+        // });
+        document.getElementById("scroll-point").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     } else {
-        showError("You must be the author of this post to run a raffle on it!")
+        showError("You must be the author of this post to run a raffle with it!");
         return;
     };
 };

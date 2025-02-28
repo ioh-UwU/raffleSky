@@ -35,11 +35,13 @@
                 </p>
             </div>
         </div>
-        <div class="component-group">
+        <div class="component-group" id="settings">
             <h2>Settings</h2>
-            <label for="winners">Number of Winners: </label>
-            <input type="number" id="winners" min="1" placeholder="#" value="1" oninput="validity.valid||(value='1');">
+            <!-- Number of Winners -->
+            <label class="num-winners-label" for="winners">Number of Winners</label>
             <br>
+            <input type="number" id="winners" min="1" placeholder="#" value="1" oninput="validity.valid||(value='1');">
+            <br><br>
             <!-- Require Follower -->
             <input class="primary-option" type="checkbox" id="follow">
             <label for="follow">Follow</label>
@@ -101,7 +103,7 @@
                                 <input class="secondary-option" type="checkbox" id="exact-match">
                                 <label for="specific-reply">Exact Match</label>
                                 <br><br>
-                                <button id="add-reply-button"><b>Add</b></button>
+                                <button id="add-reply-button">Add</button>
                                 <div id="reply-text-list"><!-- Created Dynamically --></div>
                             </div>
                         </div>
@@ -127,32 +129,34 @@
         </div>
         <div class="component-group">
             <h2>Raffle Info</h2>
-            <!-- Username -->
-            <label for="identifier">Username</label>
-            <br>
-            <input type="text" id="identifier" placeholder="handle.extension">
-            <br><br>
-            <!-- Password -->
-            <label for="password">App Password</label>
-            <br>
-            <input type="password" id="password" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx">
-            <input type="checkbox" id="password-checkbox">
-            <label for="password-checkbox">Show Password</label>
-            <br>
-            <p class="tip">Don't have one? <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer">Generate it in your Bluesky settings.</a></p>
-            <br>
-            <!-- Post Link -->
-            <label for="link">Link to post:</label><br>
-            <input type="text" id="link" placeholder="https://... or at://...">
-            <br><br>
-            <button id="run-raffle"><b>Run Raffle</b></button>
-            <h3 class="hide" id="error"></h3>
+            <form id="user-field">
+                <!-- Username -->
+                <label for="identifier">Username</label>
+                <br>
+                <input type="text" id="identifier" placeholder="handle.extension">
+                <br><br>
+                <!-- Password -->
+                <label for="password">App Password</label>
+                <br>
+                <input type="password" id="password" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx">
+                <input type="checkbox" id="password-checkbox">
+                <label for="password-checkbox">Show Password</label>
+                <br>
+                <p class="tip">Don't have one? <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer">Generate it in your Bluesky settings.</a></p>
+                <br>
+                <!-- Post Link -->
+                <label for="link">Link to post:</label><br>
+                <input type="text" id="link" placeholder="https://... or at://...">
+                <br><br>
+                <input class="submit" type="submit" id="run-raffle" value="Run Raffle">
+                <h3 class="hide" id="error"></h3>
+            </form>
         </div>
-        <br>
+        <br id="scroll-point">
         <div class="winner-buttons">
             <span class="hide" id="winner-section">
-                <button id=clear-winners><b>Clear Winners</b></button>
-                <button id="reroll"><b>Reroll Selected</b></button>
+                <button id=clear-winners>Clear Winners</button>
+                <button class="hide" id="reroll">Reroll Selected</button>
             </span>
         </div>
         <br><br>
