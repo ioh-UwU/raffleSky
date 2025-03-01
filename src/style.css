@@ -1,5 +1,6 @@
-html {
+html, body {
     background-color: #161e27;
+    width: max(100%, 600px)
 }
 link [rel="icon"] {
     border-radius: 50%;
@@ -47,21 +48,26 @@ h1 {
     font-family: Arial, Helvetica, sans-serif;
     margin-left: 1%;
     padding-bottom: 0%;
+    text-wrap: nowrap;
 }
 .small {
     color: rgb(163, 163, 163);
+    text-wrap: nowrap;
 }
 
 h2 {
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     margin-left: 1%;
+    font-size: clamp(10pt, 3vw, 20pt);
+    text-wrap: nowrap;
 }
 .slim {
     font-style: italic;
     color: rgb(163, 163, 163);
     padding-top: 0%;
     padding-bottom: 0%;
+    text-wrap: nowrap;
 }
 
 h3 { 
@@ -79,6 +85,7 @@ p {
     color: white;
     margin-left: 1%;
     line-height:160%;
+    text-wrap: nowrap;
 }
 .tip {
     font-size: small;
@@ -148,7 +155,7 @@ textarea {
     margin-bottom: 1%;
 }
 .long {
-    width: 60%;
+    width: max(400px, 60%);
 }
 
 .primary-option {
@@ -201,16 +208,16 @@ textarea {
     align-self: center;
     justify-self: center;
     width:90%;
-    height: var(height);
+    height: var(width);
     border-radius: 50%;
     margin:2%;
     margin-top: 5%;
     margin-bottom: 5%;
 }
 .winner-info {
-    display:grid;
+    display: grid;
     background-color: #2b3b4e;
-    width:100%;
+    width: max(100px, 100%);
     border-radius: 0px 8px 8px 0px;
 }
 .winner-info-reroll-select,
@@ -228,18 +235,18 @@ textarea {
 }
 .winner-display-name {
     font-weight: bold;
-    font-size: clamp(10px, 1.5vw, 50px);
+    font-size: clamp(5pt, 2vw, 20pt);
     justify-self: center;
     margin-top: 5%;
     margin-bottom: 1%;
 }
 .winner-handle {
-    font-size: clamp(10px, 1vw, 50px);
+    font-size: clamp(5pt, 1vw, 10pt);
     justify-self: center;
     margin-top:2.5%;
 }
 .winner-profile {
-    font-size: clamp(10px, 1vw, 50px);
+    font-size: clamp(10px, .5vw, 50px);
     justify-self: center;
     margin-bottom: 2%;
 }

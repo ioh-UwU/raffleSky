@@ -448,6 +448,9 @@ function addWinner(winner:Object) {
     let avatar = winner["avatar"];
     let profile = `https://bsky.app/profile/${handle}`;
     let name = winner["displayName"] != "" ? winner["displayName"] : handle;
+    if (name.length > 16) {
+        name = name.substring(0, 16) + "...";
+    };
 
     let winnerSpan = document.createElement("span");
     winnerSpan.id = handle;
