@@ -194,7 +194,7 @@ textarea {
 .winner {
     display: inline-grid;
     grid-template-columns: 33% 67%;
-    width: 31%;
+    width: min(100%, 500px);;
     background-color: rgb(0, 140, 255);
     margin: 0.5%;
     border-radius: 11px;
@@ -225,29 +225,29 @@ textarea {
 .winner-info-reroll-select-again {
     display: grid;
     background-color: #492525;
-    width: 100%;
+    width: max(100px, 100%);
     border-radius: 0px 8px 8px 0px;
 }
 .winner-info-rerolled {
     display: grid;
     background-color: #28564a;
-    width: 100%;
+    width: max(100px, 100%);
     border-radius: 0px 8px 8px 0px;
 }
 .winner-display-name {
     font-weight: bold;
-    font-size: clamp(5pt, 2vw, 20pt);
+    font-size: 20pt;
     justify-self: center;
     margin-top: 5%;
     margin-bottom: 1%;
 }
 .winner-handle {
-    font-size: clamp(5pt, 1vw, 10pt);
+    font-size: 13pt;
     justify-self: center;
     margin-top: 2.5%;
 }
 .winner-profile {
-    font-size: clamp(10px, .5vw, 50px);
+    font-size: 15pt;
     justify-self: center;
     margin-bottom: 2%;
 }
