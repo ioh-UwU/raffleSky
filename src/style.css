@@ -27,7 +27,7 @@ link [rel="icon"] {
     line-height: 20pt;
 }
 input[type="number"] {
-    width:160px;
+    width: 160px;
     line-height: 20pt;
     font-size: medium;
     text-align: center;
@@ -72,7 +72,7 @@ h2 {
 
 h3 { 
     /* Error Display Text */
-    color:rgb(255, 172, 172);
+    color: rgb(255, 172, 172);
     font-family: Arial, Helvetica, sans-serif;
     font-style: italic;
     text-shadow: -1px -1px 0 red, 1px -1px 0 red, -1px 1px 0 red, 1px 1px 0 red;
@@ -84,8 +84,9 @@ p {
     font-family: Arial, Helvetica, sans-serif;
     color: white;
     margin-left: 1%;
-    line-height:160%;
+    line-height: 160%;
     text-wrap: nowrap;
+    font-size: clamp(6pt, 2.5vw, 15pt);
 }
 .tip {
     font-size: small;
@@ -137,8 +138,8 @@ button:hover {
     color: black;
 }
 .reply-tag:hover {
-    border-color:rgb(78, 0, 0);
-    background-color:rgb(255, 203, 203);
+    border-color: rgb(78, 0, 0);
+    background-color: rgb(255, 203, 203);
 }
 
 textarea {
@@ -160,7 +161,7 @@ textarea {
 
 .primary-option {
     transform: scale(2);
-    margin:2%;
+    margin: 2%;
 }
 .secondary-option {
     transform: scale(1.5);
@@ -170,12 +171,12 @@ textarea {
 
 .show {
     visibility: visible;
-    display:unset;
+    display: unset;
     height: unset;
 }
 .hide {
     visibility: hidden;
-    display:none;
+    display: none;
     height: 0px;
 }
 /* Winner Display Style Components */
@@ -191,9 +192,9 @@ textarea {
     align-content: space-evenly;
 }
 .winner {
-    display:inline-grid;
+    display: inline-grid;
     grid-template-columns: 33% 67%;
-    width:31%;
+    width: 31%;
     background-color: rgb(0, 140, 255);
     margin: 0.5%;
     border-radius: 11px;
@@ -207,10 +208,10 @@ textarea {
 .winner-pfp {
     align-self: center;
     justify-self: center;
-    width:90%;
+    width: 90%;
     height: var(width);
     border-radius: 50%;
-    margin:2%;
+    margin: 2%;
     margin-top: 5%;
     margin-bottom: 5%;
 }
@@ -222,15 +223,15 @@ textarea {
 }
 .winner-info-reroll-select,
 .winner-info-reroll-select-again {
-    display:grid;
+    display: grid;
     background-color: #492525;
-    width:100%;
+    width: 100%;
     border-radius: 0px 8px 8px 0px;
 }
 .winner-info-rerolled {
-    display:grid;
+    display: grid;
     background-color: #28564a;
-    width:100%;
+    width: 100%;
     border-radius: 0px 8px 8px 0px;
 }
 .winner-display-name {
@@ -243,7 +244,7 @@ textarea {
 .winner-handle {
     font-size: clamp(5pt, 1vw, 10pt);
     justify-self: center;
-    margin-top:2.5%;
+    margin-top: 2.5%;
 }
 .winner-profile {
     font-size: clamp(10px, .5vw, 50px);
