@@ -23,5 +23,4 @@ dist-ssr
 *.sw?
 
 # Other Dev Stuff
-.env
 .dev-code.ts
