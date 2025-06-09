@@ -84,7 +84,7 @@
                             <label for="specific-reply">with specific text</label>
                             <div class="hide" id="specific-reply-text">
                                 <br>
-                                <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then hit 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
+                                <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                                 <br>
                                 <!-- Case Sensitive -->
                                 <input class="secondary-option" type="checkbox" id="case-sensitive">
@@ -100,40 +100,50 @@
                     </div>
                 </div>
             </div>
-            <!-- Deny List -->
+            <!-- Block List -->
             <input class="primary-option" type="checkbox" id="user-filter-check">
             <label for="user-filter-check">User Filter</label>
             <br>
             <div class="hide" id="user-filter">
-                <textarea id="filtered-users" rows="5" cols="44" placeholder="Enter handles separated by spaces.&#10;&#10;These users will be blocked from winning your raffle."></textarea>
-                <br>
-                <div>
-                    <!-- Import Host Blocked Users -->
-                    <input class="secondary-option" type="checkbox" id="host-blocks">
-                    <label for="host-blocks">Users you've blocked</label>
-                    <!-- Import Host Muted Users -->
-                    <input class="secondary-option" type="checkbox" id="host-mutes">
-                    <label for="host-mutes">Users you've muted</label>
+                <div class="component-subgroup">
+                    <div id="host-based-filters">
+                        <!-- Import Host Blocked Users -->
+                        <input class="secondary-option" type="checkbox" id="host-blocks">
+                        <label for="host-blocks">Users you've blocked</label>
+                        <!-- Import Host Muted Users -->
+                        <input class="secondary-option" type="checkbox" id="host-mutes">
+                        <label for="host-mutes">Users you've muted</label>
+                    </div>
+                    <textarea id="user-filter-text" rows="5" cols="44" placeholder="Type a user's handle, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
+                    <br>
+                    <button id="add-user-filter-button">Add</button>
+                    <div id="user-filter-list"><!-- Created Dynamically --></div>
                 </div>
             </div>    
         </div>
         <div class="component-group">
-            <h2>Raffle Info</h2>
+            <h2>Raffle Info</h2> 
             <form id="user-field">
-                <!-- Username -->
-                <label for="identifier">Username</label>
-                <br>
-                <input type="text" id="identifier" placeholder="handle.extension">
+                <input class="primary-option" type="checkbox" id="login-opt-out">
+                <label for="login-opt-out">Don't sign in.</label>
                 <br><br>
-                <!-- Password -->
-                <label for="password">App Password</label>
-                <br>
-                <input type="password" id="password" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx">
-                <input type="checkbox" id="password-checkbox">
-                <label for="password-checkbox">Show Password</label>
-                <br>
-                <p class="tip">Don't have one? <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer">Generate it in your Bluesky settings.</a></p>
-                <br>
+                <p class="hide" id="opt-out-warning">Some options that require account access will be hidden, and you may be rate-limited.<br><br></p>
+                <div id="log-in">
+                    <!-- Username -->
+                    <label for="identifier">Username</label>
+                    <br>
+                    <input type="text" id="identifier" placeholder="handle.extension">
+                    <br><br>
+                    <!-- Password -->
+                    <label for="password">App Password</label>
+                    <br>
+                    <input type="password" id="password" maxlength="19" placeholder="xxxx-xxxx-xxxx-xxxx">
+                    <input type="checkbox" id="password-checkbox">
+                    <label for="password-checkbox">Show Password</label>
+                    <br>
+                    <p class="tip">Don't have one? <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer">Generate it in your Bluesky settings.</a></p>
+                    <br>
+                </div>
                 <!-- Post Link -->
                 <label for="link">Link to post:</label><br>
                 <input class="long" type="text" id="link" placeholder="https://... or at://...">
@@ -150,6 +160,6 @@
             </span>
         </div>
         <br><br>
-        <div class="hide" id="winner-grid"><!-- Created Dynamically --></div>
+        <div class="hide" id="winner-grid"><!-- Generated Dynamically --></div>
     </body>
 </html>

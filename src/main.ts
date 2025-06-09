@@ -1,7 +1,5 @@
 import { AtpAgent } from "@atproto/api";
 
-var rerollCandidates = [];
-
 // Page functionality
 function toggleElementVisibility(ids:string[]) {
     for (let id of ids) {
@@ -44,6 +42,43 @@ function fadeOutElement(element:HTMLElement, msDuration:number) {
             };
             element.style.opacity = opacity.toPrecision(2);
         }, delay);
+    };
+};
+
+function createFilterTag(inputText:HTMLInputElement, outputList:HTMLElement) {
+    let newTagText = inputText.value.trim();
+    if (newTagText !== "") {
+        let newTag = true;
+        for (let tag of outputList.children) {
+            if (newTagText === (<Element>tag).textContent) {
+                newTag = false;
+                break;
+            };
+        };
+        if (newTag) {
+            let newTagElement = document.createElement("button");
+            newTagElement.textContent = newTagText;
+            newTagElement.className = "tag";
+            outputList.appendChild(newTagElement);
+            newTagElement.addEventListener("click", () => {newTagElement.remove()});
+        };
+    };
+    inputText.value = "";
+};
+function getTags(tagList:HTMLInputElement) {
+    let output = [];
+    for (let tag of tagList.children) {
+        output.push(tag.textContent);
+    };
+    return output.length > 0 ? output : [""];
+};
+function tagTextboxShortcuts(event:KeyboardEvent, inputText:HTMLInputElement, tagList:HTMLElement) {
+    if (event.key === "Escape") {
+        inputText.value = "";
+    } else if (event.key === "Delete") {
+        while (tagList.children.length > 0) {
+            tagList.children[0].remove();
+        };
     };
 };
 
@@ -101,44 +136,14 @@ const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
 const hostReplyList = <HTMLInputElement>document.getElementById("reply-text-list");
 hostReplyInput.addEventListener("keyup", (event) => {
     if (event.key === "Enter") {
-        createSpecificReplyTag();
-    } else if (event.key === "Escape") {
-        hostReplyList.value = "";
-    } else if (event.key === "Delete") {
-        while (hostReplyList.children.length > 0) {
-            hostReplyList.children[0].remove();
-        };
+        createFilterTag(hostReplyInput, hostReplyList);
+    } else {
+        tagTextboxShortcuts(event, hostReplyInput, hostReplyList);
     };
 });
 const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
-hostReplyAddButton.addEventListener("click", () => {createSpecificReplyTag()});
-function createSpecificReplyTag() {
-    let newReplyText = hostReplyInput.value.trim();
-    if (newReplyText !== "") {
-        let newComment = true;
-        for (let replyTag of hostReplyList.children) {
-            if (newReplyText === (<Element>replyTag).textContent) {
-                newComment = false;
-                break;
-            };
-        };
-        if (newComment) {
-            let newReply = document.createElement("button");
-            newReply.textContent = hostReplyInput.value.trim();
-            newReply.className = "reply-tag";
-            hostReplyList.appendChild(newReply);
-            newReply.addEventListener("click", () => {newReply.remove()});
-        };
-    };
-    hostReplyInput.value = "";
-};
-function getSpecificReplies() {
-    let output = [];
-    for (let hostSpecificReply of hostReplyList.children) {
-        output.push(hostSpecificReply.textContent);
-    };
-    return output.length > 0 ? output : [""];
-};
+hostReplyAddButton.addEventListener("click", () => {createFilterTag(hostReplyInput, hostReplyList)});
+
 const replyCaseSensitiveCheckbox = <HTMLInputElement>document.getElementById("case-sensitive");
 const replyExactMatchCheckbox = <HTMLInputElement>document.getElementById("exact-match");
 
@@ -150,7 +155,26 @@ const hostBlockCheckbox = <HTMLInputElement>document.getElementById("host-blocks
 hostBlockCheckbox.checked = true;
 const hostMuteCheckbox = <HTMLInputElement>document.getElementById("host-mutes");
 hostMuteCheckbox.checked = true;
-const blockedUserInput = <HTMLInputElement>document.getElementById("filtered-users");
+
+const userFilterInput = <HTMLInputElement>document.getElementById("user-filter-text");
+const userFilterList = <HTMLInputElement>document.getElementById("user-filter-list");
+userFilterInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+        createFilterTag(userFilterInput, userFilterList);
+    } else {
+        tagTextboxShortcuts(event, userFilterInput, userFilterList)
+    };
+});
+const userFilterAddButton = <HTMLInputElement>document.getElementById("add-user-filter-button");
+userFilterAddButton.addEventListener("click", () => {createFilterTag(userFilterInput, userFilterList)});
+
+const loginOptOutCheckbox = <HTMLInputElement>document.getElementById("login-opt-out");
+loginOptOutCheckbox.checked = false;
+loginOptOutCheckbox.addEventListener("click", () => toggleLoginRequired());
+function toggleLoginRequired() {
+    toggleElementVisibility(["log-in", "opt-out-warning"]);
+    hostBasedFilterCheckboxes.className = loginOptOutCheckbox.checked ? "hide" : "show";
+};
 
 const usernameInput = <HTMLInputElement>document.getElementById("identifier");
 
@@ -170,6 +194,7 @@ userField.onsubmit = (_) => {
     return false;
 };
 
+var rerollCandidates = [];
 const winnerSection = document.getElementById("winner-section");
 const clearWinnersButton = document.getElementById("clear-winners");
 clearWinnersButton.addEventListener("click", () => clearWinners());
@@ -187,6 +212,13 @@ function showError(text:string) {
     }, 3000);
 };
 
+const hostBasedFilterCheckboxes = document.getElementById("host-based-filters");
+
+document.addEventListener("keyup", (event) => {
+    if (event.key === "p") {
+        console.log(getTags(hostReplyList), getTags(userFilterList));
+    };
+});
 
 // Config
 function setRaffleConfig() {
@@ -209,14 +241,14 @@ function setRaffleConfig() {
         hostReply: {
             enabled: hostReplyCheckbox.checked,
             specific: hostReplySpecificCheckbox.checked,
-            specificReplies: getSpecificReplies(),
+            specificReplies: getTags(hostReplyList),
             caseSensitive: replyCaseSensitiveCheckbox.checked,
             exact: replyExactMatchCheckbox.checked
         },
         blockList: userFilterCheckbox.checked,
-        hostBlocks: hostBlockCheckbox.checked,
-        hostMutes: hostMuteCheckbox.checked,
-        blockedHandles: blockedUserInput.value.split(" ")
+        hostBlocks: loginOptOutCheckbox.checked ? false : hostBlockCheckbox.checked,
+        hostMutes: loginOptOutCheckbox.checked ? false : hostMuteCheckbox.checked,
+        blockedHandles: getTags(userFilterList)
     };
     return raffleConfig;
 };
@@ -482,7 +514,7 @@ function addWinner(winner:Object) {
     profileLink.innerText = "Link to Profile";
     profileLink.className = "winner-profile";
     profileLink.target = "_blank";
-    profileLink.rel = "noopener noreferrer"
+    profileLink.rel = "noopener noreferrer";
     infoDiv.appendChild(profileLink);
 
     winnerSpan.addEventListener("click", () => toggleReroll(infoDiv.id));
@@ -556,10 +588,10 @@ async function runRaffle() {
     let postInfo = await getHostInfo(agent, raffleConfig.link);
 
     // Construct the user filter list.
-    if (raffleConfig.hostBlocks) {
+    if (raffleConfig.hostBlocks && !loginOptOutCheckbox.checked) {
         raffleConfig.blockedHandles = raffleConfig.blockedHandles.concat(await getBlocks(agent));
     };
-    if (raffleConfig.hostMutes) {
+    if (raffleConfig.hostMutes && !loginOptOutCheckbox.checked) {
         raffleConfig.blockedHandles = raffleConfig.blockedHandles.concat(await getMutes(agent));
     };
     // Ensure raffle host can't win.

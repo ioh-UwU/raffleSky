@@ -132,12 +132,12 @@ button {
 button:hover {
     border-color: white;
 }
-.reply-tag {
+.tag {
     border-radius: 8px;
     background-color: rgb(201, 231, 255);
     color: black;
 }
-.reply-tag:hover {
+.tag:hover {
     border-color: rgb(78, 0, 0);
     background-color: rgb(255, 203, 203);
 }
