@@ -72,12 +72,14 @@ function getTags(tagList:HTMLInputElement) {
     };
     return output.length > 0 ? output : [""];
 };
-function tagTextboxShortcuts(event:KeyboardEvent, inputText:HTMLInputElement, tagList:HTMLElement) {
-    if (event.key === "Escape") {
+function tagTextboxShortcuts(event:KeyboardEvent, inputText:HTMLInputElement, outputList:HTMLElement) {
+    if (event.key === "Enter") {
+        createFilterTag(inputText, outputList);
+    } else if (event.key === "Escape") {
         inputText.value = "";
     } else if (event.key === "Delete") {
-        while (tagList.children.length > 0) {
-            tagList.children[0].remove();
+        while (outputList.children.length > 0) {
+            outputList.children[0].remove();
         };
     };
 };
@@ -134,13 +136,8 @@ hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibili
 
 const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
 const hostReplyList = <HTMLInputElement>document.getElementById("reply-text-list");
-hostReplyInput.addEventListener("keyup", (event) => {
-    if (event.key === "Enter") {
-        createFilterTag(hostReplyInput, hostReplyList);
-    } else {
-        tagTextboxShortcuts(event, hostReplyInput, hostReplyList);
-    };
-});
+hostReplyInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, hostReplyInput, hostReplyList));
+
 const hostReplyAddButton = <HTMLInputElement>document.getElementById("add-reply-button");
 hostReplyAddButton.addEventListener("click", () => {createFilterTag(hostReplyInput, hostReplyList)});
 
@@ -158,13 +155,8 @@ hostMuteCheckbox.checked = true;
 
 const userFilterInput = <HTMLInputElement>document.getElementById("user-filter-text");
 const userFilterList = <HTMLInputElement>document.getElementById("user-filter-list");
-userFilterInput.addEventListener("keyup", (event) => {
-    if (event.key === "Enter") {
-        createFilterTag(userFilterInput, userFilterList);
-    } else {
-        tagTextboxShortcuts(event, userFilterInput, userFilterList)
-    };
-});
+userFilterInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, userFilterInput, userFilterList));
+
 const userFilterAddButton = <HTMLInputElement>document.getElementById("add-user-filter-button");
 userFilterAddButton.addEventListener("click", () => {createFilterTag(userFilterInput, userFilterList)});
 
@@ -213,12 +205,6 @@ function showError(text:string) {
 };
 
 const hostBasedFilterCheckboxes = document.getElementById("host-based-filters");
-
-document.addEventListener("keyup", (event) => {
-    if (event.key === "p") {
-        console.log(getTags(hostReplyList), getTags(userFilterList));
-    };
-});
 
 // Config
 function setRaffleConfig() {
