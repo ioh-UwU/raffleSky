@@ -241,7 +241,12 @@ function setRaffleConfig() {
 
 // API calls
 async function signIn(usr:string, pwd:string) {
-    usr = usr[0] === "@" ? usr.substring(1) : usr;
+    if (loginOptOutCheckbox.checked) {
+        usr = "raffle.iohtheprotogen.art";
+        pwd = "TODO: add this"
+    } else {
+        usr = usr[0] === "@" ? usr.substring(1) : usr;
+    };
     let agent = new AtpAgent({service: "https://bsky.social"});
     try {
         await agent.login({identifier: usr, password: pwd});
