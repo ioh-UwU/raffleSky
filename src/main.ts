@@ -481,6 +481,8 @@ function addWinner(winner:Object) {
     profileLink.href = profile;
     profileLink.innerText = "Link to Profile";
     profileLink.className = "winner-profile";
+    profileLink.target = "_blank";
+    profileLink.rel = "noopener noreferrer"
     infoDiv.appendChild(profileLink);
 
     winnerSpan.addEventListener("click", () => toggleReroll(infoDiv.id));
