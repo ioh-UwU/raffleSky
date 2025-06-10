@@ -243,20 +243,16 @@ function setRaffleConfig() {
 // API calls
 async function signIn(usr:string, pwd:string) {
     let agent = null;
-    try {
-        if (loginOptOutCheckbox.checked) {
-            let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default", { method: "POST" })).text();
-            hostReplyInput.textContent = test
-        } else {
-            usr = usr[0] === "@" ? usr.substring(1) : usr;
-            agent = new AtpAgent({service: "https://bsky.social"});
-            await agent.login({identifier: usr, password: pwd});
-        };
-        console.log(agent)
-        return agent;
-    } catch {
-        return null;
+    if (loginOptOutCheckbox.checked) {
+        let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default", { method: "POST" })).text();
+        hostReplyInput.textContent = "test: ", test
+    } else {
+        usr = usr[0] === "@" ? usr.substring(1) : usr;
+        agent = new AtpAgent({service: "https://bsky.social"});
+        await agent.login({identifier: usr, password: pwd});
     };
+    console.log(agent)
+    return agent;
 };
 
 // Raffle data requests
