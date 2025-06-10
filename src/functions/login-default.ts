@@ -6,7 +6,6 @@ export interface Env {
 }
 export default {
   async fetch(request, env, ctx):Promise<Response> {
-    const clientIP = request.headers.get("CF-Connecting-IP");
     const defaultUser = "raffle.iohtheprotogen.art";
     const defaultPassword = env.DEFAULT_APP_PWD;
     let agent = new AtpAgent({service: "https://bsky.social"});

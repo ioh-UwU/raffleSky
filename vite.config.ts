@@ -1,6 +1,7 @@
 import type {UserConfig} from "vite";
 
 export default {
+    root: "src",
     build: {
         emptyOutDir: false,
         rollupOptions: {
