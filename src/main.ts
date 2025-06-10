@@ -1,5 +1,4 @@
 import { AtpAgent } from "@atproto/api";
-import { error } from "console";
 
 // Page functionality
 function toggleElementVisibility(ids:string[]) {
@@ -7,11 +6,6 @@ function toggleElementVisibility(ids:string[]) {
         let element = document.getElementById(id);
         element.className = element.className === "hide" ? "show" : "hide";
     };
-};
-
-function togglePasswordVisibility() {
-    let pwdInput = <HTMLInputElement>document.getElementById("password");
-    pwdInput.type = pwdInput.type === "password" ? "text" : "password";
 };
 
 function fadeInElement(element:HTMLElement, msDuration:number) {
@@ -86,6 +80,8 @@ function tagTextboxShortcuts(event:KeyboardEvent, inputText:HTMLInputElement, ou
 };
 
 // Initialize page elements
+const linkInput = <HTMLInputElement>document.getElementById("link");
+
 const numWinnersInput = <HTMLInputElement>document.getElementById("winners");
 numWinnersInput.addEventListener("keyup", (event) => {
     if (event.key === "Escape") {
@@ -149,11 +145,6 @@ const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filte
 userFilterCheckbox.checked = false;
 userFilterCheckbox.addEventListener("click", () => toggleElementVisibility(["user-filter"]));
 
-const hostBlockCheckbox = <HTMLInputElement>document.getElementById("host-blocks");
-hostBlockCheckbox.checked = true;
-const hostMuteCheckbox = <HTMLInputElement>document.getElementById("host-mutes");
-hostMuteCheckbox.checked = true;
-
 const userFilterInput = <HTMLInputElement>document.getElementById("user-filter-text");
 const userFilterList = <HTMLInputElement>document.getElementById("user-filter-list");
 userFilterInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, userFilterInput, userFilterList));
@@ -161,31 +152,8 @@ userFilterInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, 
 const userFilterAddButton = <HTMLInputElement>document.getElementById("add-user-filter-button");
 userFilterAddButton.addEventListener("click", () => {createFilterTag(userFilterInput, userFilterList)});
 
-const loginOptOutCheckbox = <HTMLInputElement>document.getElementById("login-opt-out");
-loginOptOutCheckbox.checked = false;
-loginOptOutCheckbox.addEventListener("click", () => toggleLoginRequired());
-function toggleLoginRequired() {
-    toggleElementVisibility(["log-in", "opt-out-warning"]);
-    hostBasedFilterCheckboxes.className = loginOptOutCheckbox.checked ? "hide" : "show";
-};
-
-const usernameInput = <HTMLInputElement>document.getElementById("identifier");
-
-const passwordInput = <HTMLInputElement>document.getElementById("password");
-const passwordCheckbox = <HTMLInputElement>document.getElementById("password-checkbox");
-passwordCheckbox.checked = false;
-passwordCheckbox.addEventListener("click", () => togglePasswordVisibility());
-
-const linkInput = <HTMLInputElement>document.getElementById("link");
-
 const raffleButton = <HTMLInputElement>document.getElementById("run-raffle");
-raffleButton.formTarget = null;
-
-const userField = document.getElementById("user-field");
-userField.onsubmit = (_) => {
-    runRaffle();
-    return false;
-};
+raffleButton.addEventListener("click", () => runRaffle())
 
 var rerollCandidates = [];
 const winnerSection = document.getElementById("winner-section");
@@ -205,13 +173,9 @@ function showError(text:string) {
     }, 3000);
 };
 
-const hostBasedFilterCheckboxes = document.getElementById("host-based-filters");
-
 // Config
 function setRaffleConfig() {
     let raffleConfig = {
-        identifier: usernameInput.value,
-        password: passwordInput.value,
         link: linkInput.value,
 
         winners: numWinnersInput.valueAsNumber,
@@ -233,25 +197,14 @@ function setRaffleConfig() {
             exact: replyExactMatchCheckbox.checked
         },
         blockList: userFilterCheckbox.checked,
-        hostBlocks: loginOptOutCheckbox.checked ? false : hostBlockCheckbox.checked,
-        hostMutes: loginOptOutCheckbox.checked ? false : hostMuteCheckbox.checked,
         blockedHandles: getTags(userFilterList)
     };
     return raffleConfig;
 };
 
 // API calls
-async function signIn(usr:string, pwd:string) {
-    let agent = null;
-    if (loginOptOutCheckbox.checked) {
-        let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default")).text();
-        hostReplyInput.textContent = "test: ", test
-    } else {
-        usr = usr[0] === "@" ? usr.substring(1) : usr;
-        agent = new AtpAgent({service: "https://bsky.social"});
-        await agent.login({identifier: usr, password: pwd});
-    };
-    console.log(agent)
+async function signIn() {
+    let agent = new AtpAgent({service: "https://public.api.bsky.app"});
     return agent;
 };
 
@@ -276,43 +229,11 @@ async function getHostInfo(agent:AtpAgent, link:string) {
     };
 };
 
-async function getBlocks(agent:AtpAgent) {
-    let cumulativeBlocks = [];
-    let enumCursor = "";
-    while (enumCursor !== undefined) {
-        let returnData = (await agent.app.bsky.graph.getBlocks({limit: 100, cursor: enumCursor})).data;
-        enumCursor = returnData.cursor;
-        cumulativeBlocks = cumulativeBlocks.concat(returnData.blocks);
-    };
-
-    let output = [];
-    for (let block of cumulativeBlocks) {
-        output.push(block["handle"]);
-    };
-    return output;
-};
-
-async function getMutes(agent:AtpAgent) {
-    let cumulativeMutes = [];
-    let enumCursor = "";
-    while (enumCursor !== undefined) {
-        let returnData = (await agent.app.bsky.graph.getMutes({limit: 100, cursor: enumCursor})).data;
-        enumCursor = returnData.cursor;
-        cumulativeMutes = cumulativeMutes.concat(returnData.mutes);
-    };
-
-    let output = [];
-    for (let mute of cumulativeMutes) {
-        output.push(mute["handle"]);
-    };
-    return output;
-};
-
 async function getFollows(agent:AtpAgent, hostActor:string) {
     let output = [];
     let enumCursor = "";
     while (enumCursor !== undefined) {
-        let returnData = (await agent.getFollowers({actor: hostActor, limit: 100, cursor: enumCursor})).data;
+        let returnData = (await agent.app.bsky.graph.getFollowers({actor: hostActor, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         output = output.concat(returnData.followers);
     };
@@ -323,7 +244,7 @@ async function getLikes(agent:AtpAgent, postUri:string) {
     let likes = [];
     let enumCursor = "";
     while (enumCursor !== undefined) {
-        let returnData = (await agent.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
+        let returnData = (await agent.app.bsky.feed.getLikes({uri: postUri, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         likes = likes.concat(returnData.likes);
     };
@@ -338,7 +259,7 @@ async function getReposts(agent:AtpAgent, postUri:string) {
     let output = [];
     let enumCursor = "";
     while (enumCursor !== undefined) {
-        let returnData = (await agent.getRepostedBy({uri: postUri, limit: 100, cursor: enumCursor})).data;
+        let returnData = (await agent.app.bsky.feed.getRepostedBy({uri: postUri, limit: 100, cursor: enumCursor})).data;
         enumCursor = returnData.cursor;
         output = output.concat(returnData.repostedBy);
     };
@@ -346,7 +267,7 @@ async function getReposts(agent:AtpAgent, postUri:string) {
 };
 
 async function getComments(agent:AtpAgent, postUri:string) {
-    return (await agent.getPostThread({uri: postUri, depth: 2})).data.thread["replies"];
+    return (await agent.app.bsky.feed.getPostThread({uri: postUri, depth: 2})).data.thread["replies"];
 };
 
 function commentEmbedFilter(comments:Object, embedTypes:Object) {
@@ -426,6 +347,7 @@ function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<stri
     let prevBuffer = [];
     let output = [];
     let firstGroup = true;
+    // Make sure all required parameters are met for all entrants.
     for (let group of candidateGroups) {
         if (group != undefined) {
             if (firstGroup) {
@@ -434,12 +356,10 @@ function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<stri
                 continue;
             };
             for (let [_, candidate] of Object.entries(group)) {
-                if (!denyList.includes(candidate["handle"])) {
-                    for (let prev of prevBuffer) {
-                        if (candidate["handle"] === prev["handle"]) {
-                            output.push(candidate);
-                            break;
-                        };
+                for (let prev of prevBuffer) {
+                    if (candidate["handle"] === prev["handle"]) {
+                        output.push(candidate);
+                        break;
                     };
                 };
             };
@@ -447,7 +367,12 @@ function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<stri
             output = [];
         };
     };
-    output = prevBuffer;
+    // Apply user filter.
+    for (let [_, candidate] of Object.entries(prevBuffer)) {
+        if (!denyList.includes(candidate["handle"])) {
+            output.push(candidate);
+        };
+    };
     return output;
 };
 
@@ -561,82 +486,63 @@ function rerollWinners() {
 
 // Raffle procedure
 async function runRaffle() {
-    errorText.textContent = "Please wait...";
-    fadeInElement(errorText, 500);
+    showError("Please wait...")
     clearWinners();
     let raffleConfig = setRaffleConfig();
-    let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
+    let agent = await signIn();
     if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
         showError("No raffle options set!");
         return;
     };
-    if (agent === null) {
-        showError("Invalid username or password.");
-        return;
-    };
     let postInfo = await getHostInfo(agent, raffleConfig.link);
 
-    // Construct the user filter list.
-    if (raffleConfig.hostBlocks && !loginOptOutCheckbox.checked) {
-        raffleConfig.blockedHandles = raffleConfig.blockedHandles.concat(await getBlocks(agent));
-    };
-    if (raffleConfig.hostMutes && !loginOptOutCheckbox.checked) {
-        raffleConfig.blockedHandles = raffleConfig.blockedHandles.concat(await getMutes(agent));
-    };
     // Ensure raffle host can't win.
     if (!raffleConfig.blockedHandles.includes(postInfo.hostHandle)) {
         raffleConfig.blockedHandles.push(postInfo.hostHandle);
     };
     raffleConfig.blockedHandles = raffleConfig.blockedHandles.filter((a) => {return a != ""});
-
-    // To prevent fraud, raffles may only be run on your own posts. 
-    if (raffleConfig.identifier === postInfo.hostHandle) {
-        if (raffleConfig.follow) {
-            var follows = await getFollows(agent, postInfo.hostHandle);
+    if (raffleConfig.follow) {
+        var follows = await getFollows(agent, postInfo.hostHandle);
+    };
+    if (raffleConfig.like) {
+        var likes = await getLikes(agent, postInfo.postUri);
+    };
+    if (raffleConfig.repost) {
+        var reposts = await getReposts(agent, postInfo.postUri);
+    };
+    if (raffleConfig.comment) {
+        var comments = await getComments(agent, postInfo.postUri);
+        if (Object.values(raffleConfig.embedTypes).find((a) => {return a === true})) {
+            comments = commentEmbedFilter(comments, raffleConfig.embedTypes);
         };
-        if (raffleConfig.like) {
-            var likes = await getLikes(agent, postInfo.postUri);
+        if (raffleConfig.hostReply.enabled) {
+            comments = commentReplyFilter(
+                comments,
+                postInfo.hostHandle,
+                raffleConfig.hostReply
+            );
         };
-        if (raffleConfig.repost) {
-            var reposts = await getReposts(agent, postInfo.postUri);
-        };
-        if (raffleConfig.comment) {
-            var comments = await getComments(agent, postInfo.postUri);
-            if (Object.values(raffleConfig.embedTypes).find((a) => {return a === true})) {
-                comments = commentEmbedFilter(comments, raffleConfig.embedTypes);
-            };
-            if (raffleConfig.hostReply.enabled) {
-                comments = commentReplyFilter(
-                    comments,
-                    postInfo.hostHandle,
-                    raffleConfig.hostReply
-                );
-            };
-            comments = getCommentActors(comments);
-        };
-        let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
-        if (candidates.length > 0) {
-            var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
-        } else {
-            showError("No viable candidates. No winners!");
-            return;
-        };
-        for (let winner of winners) {
-            displayWinners.appendChild(addWinner(winner));
-        };
-        winnerSection.className = "show";
-        displayWinners.className = "show";
-
-        errorText.className = "hide";
-        errorText.style.opacity = "0";
-        errorText.textContent = "unset";
-
-        document.getElementById("scroll-point").scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+        comments = getCommentActors(comments);
+    };
+    let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
+    if (candidates.length > 0) {
+        var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
     } else {
-        showError("You must be the author of this post to run a raffle with it!");
+        showError("No viable candidates. No winners!");
         return;
     };
+    for (let winner of winners) {
+        displayWinners.appendChild(addWinner(winner));
+    };
+    winnerSection.className = "show";
+    displayWinners.className = "show";
+
+    errorText.className = "hide";
+    errorText.style.opacity = "0";
+    errorText.textContent = "unset";
+
+    document.getElementById("scroll-point").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 };

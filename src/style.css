@@ -22,7 +22,7 @@ link [rel="icon"] {
     margin-right: 0px;
 }
 
-.num-winners-label {
+.input-label {
     font-size: larger;
     line-height: 20pt;
 }
@@ -114,7 +114,6 @@ label {
     padding-bottom: 0.5%;
 }
 
-.submit,
 button {
     margin: 0.5%;
     padding: 1%;
@@ -128,10 +127,10 @@ button {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
 }
-.submit:hover,
 button:hover {
     border-color: white;
 }
+
 .tag {
     border-radius: 8px;
     background-color: rgb(201, 231, 255);
@@ -157,6 +156,9 @@ textarea {
 }
 .long {
     width: max(400px, 60%);
+}
+.short {
+    width: max(200px, 30%)
 }
 
 .primary-option {
