@@ -243,8 +243,8 @@ function setRaffleConfig() {
 // API calls
 async function signIn(usr:string, pwd:string) {
     let agent = null;
+    console.log("sign in")
     try {
-        console.log("sign in")
         if (loginOptOutCheckbox.checked) {
             console.log("default user")
             let test = await (await fetch("/login-default", { method: "POST" })).text();
@@ -570,8 +570,9 @@ async function runRaffle() {
     fadeInElement(errorText, 500);
     clearWinners();
     let raffleConfig = setRaffleConfig();
+    console.log("got here")
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
-    
+    console.log(agent)
     if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
         showError("No raffle options set!");
         return;
