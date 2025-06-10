@@ -164,6 +164,7 @@ const loginOptOutCheckbox = <HTMLInputElement>document.getElementById("login-opt
 loginOptOutCheckbox.checked = false;
 loginOptOutCheckbox.addEventListener("click", () => toggleLoginRequired());
 function toggleLoginRequired() {
+    console.log("clicked the thing")
     toggleElementVisibility(["log-in", "opt-out-warning"]);
     hostBasedFilterCheckboxes.className = loginOptOutCheckbox.checked ? "hide" : "show";
 };
