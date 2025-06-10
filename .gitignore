@@ -24,4 +24,4 @@ dist-ssr
 
 # Other Dev Stuff
 .wrangler
-.dev-build
+dist
