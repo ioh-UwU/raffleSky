@@ -243,12 +243,10 @@ function setRaffleConfig() {
 // API calls
 async function signIn(usr:string, pwd:string) {
     let agent = null;
-    console.log("sign in")
     try {
         if (loginOptOutCheckbox.checked) {
-            console.log("default user")
-            let test = await (await fetch("/login-default", { method: "POST" })).text();
-            console.log("test: ", test);
+            let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default", { method: "POST" })).text();
+            console.log(test)
         } else {
             usr = usr[0] === "@" ? usr.substring(1) : usr;
             agent = new AtpAgent({service: "https://bsky.social"});
@@ -570,9 +568,7 @@ async function runRaffle() {
     fadeInElement(errorText, 500);
     clearWinners();
     let raffleConfig = setRaffleConfig();
-    console.log("got here")
     let agent = await signIn(raffleConfig.identifier, raffleConfig.password);
-    console.log(agent)
     if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
         showError("No raffle options set!");
         return;
