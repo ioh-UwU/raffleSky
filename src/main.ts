@@ -242,11 +242,13 @@ function setRaffleConfig() {
 
 // API calls
 async function signIn(usr:string, pwd:string) {
-    let agent:any = ''
+    let agent = null;
     try {
+        console.log("sign in")
         if (loginOptOutCheckbox.checked) {
+            console.log("default user")
             let test = await (await fetch("/login-default", { method: "POST" })).text();
-            console.log("test: ", test)
+            console.log("test: ", test);
         } else {
             usr = usr[0] === "@" ? usr.substring(1) : usr;
             agent = new AtpAgent({service: "https://bsky.social"});
