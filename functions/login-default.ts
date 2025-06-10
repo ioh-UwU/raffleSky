@@ -15,10 +15,7 @@ export const onRequestPost = async ({ request, env }) => {
     } catch {
         response = null;
     };
-    return new Response(JSON.stringify(response), {headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*" // debug
-    }});
+    return new Response(JSON.stringify(response), { headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json" } });
   } else {
     return new Response("Operation Terminated.")
   };
