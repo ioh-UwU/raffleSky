@@ -15,7 +15,7 @@ export const onRequestPost = async ({ request, env }) => {
     } catch {
         response = null;
     };
-    return new Response(JSON.stringify(response));
+    return new Response("this is a test")//JSON.stringify(response));
   } else {
     return new Response("Operation Terminated.")
   };

@@ -246,7 +246,7 @@ async function signIn(usr:string, pwd:string) {
     try {
         if (loginOptOutCheckbox.checked) {
             let test = await (await fetch("/login-default", { method: "POST" })).text();
-            console.log(test)
+            console.log("test: ", test)
         } else {
             await agent.login({identifier: usr, password: pwd});
         };
