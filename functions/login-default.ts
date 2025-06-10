@@ -4,7 +4,7 @@ export interface Env {
   DEFAULT_APP_PWD: string;
 }
 export const onRequestPost = async ({ request, env }) => {
-  if (request.method === "POST"){// && request.headers.get("Origin") === "https://iohtheprotogen.art" && request.headers.get("Referer") === "https://iohtheprotogen.art/") {
+  if (request.method === "POST"){// && request.headers.get("Origin") === "https://raffle.iohtheprotogen.art" && request.headers.get("Referer") === "https://raffle.iohtheprotogen.art/") {
     const defaultUser = "raffle.iohtheprotogen.art";
     const defaultPassword = env.DEFAULT_APP_PWD;
     let agent = new AtpAgent({service: "https://bsky.social"});
