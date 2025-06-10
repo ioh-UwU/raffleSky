@@ -15,7 +15,7 @@ export const onRequestPost = async ({ request, env }) => {
     } catch {
         response = null;
     };
-    return new Response(JSON.stringify(response), { headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json" } });
+    return new Response(JSON.stringify(response), { headers: {"Access-Control-Allow-Origin": "https://raffle.iohtheprotogen.art", "Content-Type": "application/json" } });
   } else {
     return new Response("Operation Terminated.")
   };

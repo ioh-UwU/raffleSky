@@ -246,12 +246,13 @@ async function signIn(usr:string, pwd:string) {
     try {
         if (loginOptOutCheckbox.checked) {
             let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default", { method: "POST" })).text();
-            console.log(test)
+            hostReplyInput.textContent = test
         } else {
             usr = usr[0] === "@" ? usr.substring(1) : usr;
             agent = new AtpAgent({service: "https://bsky.social"});
             await agent.login({identifier: usr, password: pwd});
         };
+        console.log(agent)
         return agent;
     } catch {
         return null;
