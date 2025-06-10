@@ -245,7 +245,7 @@ async function signIn(usr:string, pwd:string) {
     let agent = new AtpAgent({service: "https://bsky.social"});
     try {
         if (loginOptOutCheckbox.checked) {
-            agent = <AtpAgent><unknown>(await fetch("/login-default", { method: "POST" })).json();
+            agent = <AtpAgent>JSON.parse(await (await fetch("/login-default", { method: "POST" })).text());
         } else {
             await agent.login({identifier: usr, password: pwd});
         };

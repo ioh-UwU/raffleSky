@@ -1,4 +1,3 @@
-import type { ExportedHandler } from "@cloudflare/workers-types";
 import { AtpAgent } from "@atproto/api";
 
 export interface Env {
@@ -15,5 +14,9 @@ export const onRequestPost = async ({ request, env }) => {
   } catch {
       response = null;
   };
-  return new Response(JSON.stringify(response));
+  if (request.method === "POST") {
+    return new Response(JSON.stringify(response));
+  } else {
+    return new Response("Operation Terminated: Insecure request.")
+  };
 };
