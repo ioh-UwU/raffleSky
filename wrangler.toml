@@ -2,4 +2,3 @@
 name = "rafflesky"
 pages_build_output_dir = ".dev-build"
 compatibility_date = "2025-06-09"
-main = "functions"
