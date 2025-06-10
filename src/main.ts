@@ -244,7 +244,7 @@ function setRaffleConfig() {
 async function signIn(usr:string, pwd:string) {
     let agent = null;
     if (loginOptOutCheckbox.checked) {
-        let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default", { method: "POST" })).text();
+        let test = await (await fetch("https://raffle.iohtheprotogen.art/login-default")).text();
         hostReplyInput.textContent = "test: ", test
     } else {
         usr = usr[0] === "@" ? usr.substring(1) : usr;
