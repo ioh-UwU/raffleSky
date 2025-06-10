@@ -23,5 +23,5 @@ dist-ssr
 *.sw?
 
 # Other Dev Stuff
-.dev-code.ts
-dist/*
+.wrangler
+.dev-build
