@@ -1,4 +1,5 @@
 import { AtpAgent } from "@atproto/api";
+import { error } from "console";
 
 // Page functionality
 function toggleElementVisibility(ids:string[]) {
@@ -241,13 +242,14 @@ function setRaffleConfig() {
 
 // API calls
 async function signIn(usr:string, pwd:string) {
-    usr = usr[0] === "@" ? usr.substring(1) : usr;
-    let agent = new AtpAgent({service: "https://bsky.social"});
+    let agent:any = ''
     try {
         if (loginOptOutCheckbox.checked) {
             let test = await (await fetch("/login-default", { method: "POST" })).text();
             console.log("test: ", test)
         } else {
+            usr = usr[0] === "@" ? usr.substring(1) : usr;
+            agent = new AtpAgent({service: "https://bsky.social"});
             await agent.login({identifier: usr, password: pwd});
         };
         return agent;
