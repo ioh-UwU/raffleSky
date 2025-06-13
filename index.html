@@ -13,19 +13,29 @@
     </head>
     <body>
         <div class="component-group">
-            <h1><a href="https://bsky.app/profile/iohtheprotogen.art" target="_blank" rel="noopener noreferrer">ioh's</a> Bluesky Raffle Utility</i></h1>
+            <h1>ioh's Bluesky Raffle Utility</i></h1>
             <h2 class="slim">Run raffles on Bluesky posts through the API!</h2>
-            <div class="component-subgroup">
-                <p>
-                    For questions, bugs, or feature requests, DM me on Bluesky!
-                    <br>
-                    For usage instructions, see <a href="https://github.com/ioh-UwU/raffleSky" target="_blank" rel="noopener noreferrer">the source Github repository</a>. [WIP]
-                    <br>
-                </p>
-            </div>
+            <br><br>
+                    <a class="button" href="https://bsky.app/profile/iohtheprotogen.art" target="_blank" rel="noopener noreferrer">
+                    <img class="button-image" src="src/images/bsky-logo.png" alt="Bluesky logo">
+                    &nbsp;Follow me on Bluesky
+                </a>
+                <a class="button" href="https://ko-fi.com/iohtheprotogen" target="_blank" rel="noopener noreferrer">
+                    <img class="button-image" src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a01229bf8a18f97a3c1_favion-p-500.png" alt="Ko-Fi logo">
+                    &nbsp;Support me on Ko-Fi
+                </a>
+
+                <a class="button" href="https://github.com/ioh-UwU/raffleSky" target="_blank" rel="noopener noreferrer">
+                    <img class="button-image" src="src/images/github-logo.png" alt="GitHub logo">
+                    &nbsp;Source Repository
+                </a>
+            <br><br>
         </div>
         <div class="component-group" id="settings">
-            <h2>Raffle Options</h2>
+            <h2>Raffle Config&ensp;</h2>
+            <button id="import-config">Import Config</button>
+            <button id="export-config">Export Config</button>
+            <br>
             <!-- Post Link -->
             <label class="input-label" for="link">Link to post:</label>
             <br>
@@ -90,14 +100,14 @@
                                 <br>
                                 <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                                 <br>
+                                <button id="add-reply-button">Add</button>
                                 <!-- Case Sensitive -->
                                 <input class="secondary-option" type="checkbox" id="case-sensitive">
                                 <label for="case-sensitive">Case Sensitive</label>
                                 <!-- Exact Match -->
                                 <input class="secondary-option" type="checkbox" id="exact-match">
                                 <label for="specific-reply">Exact Match</label>
-                                <br><br>
-                                <button id="add-reply-button">Add</button>
+                                <br>
                                 <div id="reply-text-list"><!-- Created Dynamically --></div>
                             </div>
                         </div>
@@ -119,7 +129,7 @@
             <br>
             <button id="run-raffle">Run Raffle</button>
             <h3 class="hide" id="error"></h3>
-            <br><br>
+            <br>
         </div>
         <br id="scroll-point">
         <div class="winner-buttons">
