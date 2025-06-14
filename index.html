@@ -12,6 +12,7 @@
         <title>ioh's Bluesky Raffle Utility</title>
     </head>
     <body>
+        <!-- Title Card -->
         <div class="component-group">
             <h1>ioh's Bluesky Raffle Utility</i></h1>
             <h2 class="slim">Run raffles on Bluesky posts through the API!</h2>
@@ -24,13 +25,13 @@
                     <img class="button-image" src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a01229bf8a18f97a3c1_favion-p-500.png" alt="Ko-Fi logo">
                     &nbsp;Support me on Ko-Fi
                 </a>
-
                 <a class="button" href="https://github.com/ioh-UwU/raffleSky" target="_blank" rel="noopener noreferrer">
                     <img class="button-image" src="src/images/github-logo.png" alt="GitHub logo">
                     &nbsp;Source Repository
                 </a>
             <br><br>
         </div>
+        <!-- Raffle Options -->
         <div class="component-group" id="settings">
             <h2>Raffle Config&ensp;</h2>
             <button id="import-config">Import Config</button>
@@ -108,7 +109,7 @@
                                 <input class="secondary-option" type="checkbox" id="exact-match">
                                 <label for="specific-reply">Exact Match</label>
                                 <br>
-                                <div id="reply-text-list"><!-- Created Dynamically --></div>
+                                <div id="reply-text-list"><!-- Generated Dynamically --></div>
                             </div>
                         </div>
                     </div>
@@ -123,12 +124,12 @@
                     <textarea id="user-filter-text" rows="5" cols="44" placeholder="Type a user's handle, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                     <br>
                     <button id="add-user-filter-button">Add</button>
-                    <div id="user-filter-list"><!-- Created Dynamically --></div>
+                    <div id="user-filter-list"><!-- Generated Dynamically --></div>
                 </div>
             </div>    
             <br>
             <button id="run-raffle">Run Raffle</button>
-            <h3 class="hide" id="error"></h3>
+            <h3 class="hide" id="error"><!-- Generated Dynamically --></h3>
             <br>
         </div>
         <br id="scroll-point">
@@ -140,5 +141,29 @@
         </div>
         <br><br>
         <div class="hide" id="winner-grid"><!-- Generated Dynamically --></div>
+        <!-- Config Import Overlay -->
+        <div class="hide" id="import-config-overlay">
+            <div class="file-overlay">
+                <div class="file-overlay-content">
+                    <div class="overlay-text">
+                        Select File
+                        <button class="exit-button" id="exit-button">X</button>
+                    </div>
+                    <!-- Config Upload -->
+                    <input class="config-upload" id="import-config-file-upload" type="file" accept=".json">
+                    <br><br>
+                    <!-- Preserve URL -->
+                    <input class="primary-option" id="import-config-keep-link" type="checkbox">
+                    <label for="import-config-keep-link">Keep Post URL (if present)</label>
+                    <br>
+                    <!-- Preserve Winners -->
+                    <input class="primary-option" id="import-config-keep-winners" type="checkbox">
+                    <label for="import-config-keep-winners">Keep Winners (if present)</label>
+                    <br><br>
+                    <button id="confirm-import-config">Import Config</button>
+                    <h3 class="hide" id="upload-error"><!-- Generated Dynamically --></h3>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

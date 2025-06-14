@@ -9,10 +9,11 @@ function toggleElementVisibility(ids:string[]) {
 }
 let timerIDs = [];
 function fadeInElement(element:HTMLElement, msDuration:number) {
-    element.className = "show";
     const step = 0.05; // 20 times
     const delay = msDuration / 20;
     let opacity = 0;
+    element.style.opacity = "0";
+    element.className = "show";
     let timer = setInterval(() => {
         opacity += step;
         if (opacity > 1) {
@@ -31,6 +32,7 @@ function fadeOutElement(element:HTMLElement, msDuration:number) {
         opacity -= step;
         if (opacity < 0) {
             opacity = 0;
+            element.className = "hide";
             window.clearInterval(timer);
         }
         element.style.opacity = opacity.toPrecision(2);
@@ -92,12 +94,36 @@ function showError(text:string) {
 // Initialize page elements
 const importConfigButton = document.getElementById("import-config");
 importConfigButton.addEventListener("click", () => {
-    //TODO: Implement this.
+    importConfigFileUploadInput.value = null;
+    fadeInElement(importConfigOverlay, 40);
+    importConfigFileUploadInput.click();
 });
-
 const exportConfigButton = document.getElementById("export-config");
 exportConfigButton.addEventListener("click", () => {
     //TODO: Implement this.
+});
+
+const importConfigOverlay = document.getElementById("import-config-overlay");
+document.addEventListener("keyup", (event) => {
+    if (event.key === "Escape" && importConfigOverlay.className === "show") {
+        fadeOutElement(importConfigOverlay, 40);
+    }
+});
+const importConfigExitButton = document.getElementById("exit-button")
+importConfigExitButton.addEventListener("click", () => {
+    fadeOutElement(importConfigOverlay, 40);
+});
+
+const importConfigFileUploadInput = <HTMLInputElement>document.getElementById("import-config-file-upload");
+const importConfigKeepLinkInput = <HTMLInputElement>document.getElementById("import-config-keep-link");
+importConfigKeepLinkInput.checked = true;
+const importConfigKeepWinnersInput = <HTMLInputElement>document.getElementById("import-config-keep-winners");
+importConfigKeepWinnersInput.checked = true;
+
+const confirmImportConfigButton = document.getElementById("confirm-import-config");
+confirmImportConfigButton.addEventListener("click", () => {
+    //TODO: Implement this.
+    fadeOutElement(importConfigOverlay, 40);
 });
 
 const linkInput = <HTMLInputElement>document.getElementById("link");
