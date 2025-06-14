@@ -1,7 +1,4 @@
 # ioh's Bluesky Raffle Utility
-
-by [@iohtheprotogen.art](https://iohtheprotogen.art)
-
 Project files for a web app I've made for hosting highly customizable raffles on Bluesky posts. <br>
 _Uses Node.js and Vite_
 
