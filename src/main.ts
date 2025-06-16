@@ -48,7 +48,7 @@ function fadeOutElement(element: HTMLElement, msDuration: number) {
     timerIDs.push(timer);
 }
 
-function createFilterTag(inputText: (string | HTMLInputElement), outputList: HTMLElement) {
+function createFilterTag(inputText: string | HTMLInputElement, outputList: HTMLElement) {
     if (typeof inputText === "string") {
         var newTagText = inputText.trim();
     } else {
@@ -501,7 +501,7 @@ function getCandidates(candidateGroups: Array<Array<Object>>, denyList: Array<st
             output = [];
         }
     }
-    // Apply user filter and add "rerolled property" (used by imported configs).
+    // Apply user filter and add "rerolled" property (used by imported configs).
     for (let [_, candidate] of Object.entries(prevBuffer)) {
         if (!denyList.includes(candidate["handle"])) {
             Object.defineProperty(candidate, "rerolled", { value: false, writable: true, enumerable: true });
