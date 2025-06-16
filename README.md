@@ -6,7 +6,7 @@ To use the site, simply enter the link to the post you're running your raffle on
 If available, more options related to each parameter will become visible as they are selected.
 
 ## Plans for New Features
-* Options to import and export configurations and full raffles, including chosen and rerolled winners.
+* [Completed] Options to import and export configurations and full raffles, including chosen and rerolled winners.
 * Options for required content in candidate comments.
 * Option for minimum account age.
 * Options for minimum and maximum follower/following counts.
