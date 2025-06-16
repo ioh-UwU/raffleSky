@@ -129,7 +129,9 @@
             </div>    
             <br>
             <button id="run-raffle">Run Raffle</button>
-            <h3 class="hide" id="error"><!-- Generated Dynamically --></h3>
+            <span class="hide" id="raffle-message">
+                <h3><!-- Generated Dynamically --></h3>
+            </span>
             <br>
         </div>
         <br id="scroll-point">
@@ -147,8 +149,9 @@
                 <div class="file-overlay-content">
                     <div class="overlay-text">
                         Select File
-                        <button class="exit-button" id="exit-button">X</button>
+                        <button class="exit-button" id="import-exit-button">X</button>
                     </div>
+                    <br>
                     <!-- Config Upload -->
                     <input class="config-upload" id="import-config-file-upload" type="file" accept=".json">
                     <br><br>
@@ -161,7 +164,26 @@
                     <label for="import-config-keep-winners">Keep Winners (if present)</label>
                     <br><br>
                     <button id="confirm-import-config">Import Raffle</button>
-                    <h3 class="hide" id="upload-error"><!-- Generated Dynamically --></h3>
+                    <span class="hide" id="upload-message">
+                        <h3><!-- Generated Dynamically --></h3>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- Config Export Overlay -->
+        <div class="hide" id="export-config-overlay">
+            <div class="file-overlay">
+                <div class="file-overlay-content">
+                    <div class="overlay-text">
+                        Export Config
+                        <button class="exit-button" id="export-exit-button">X</button>
+                    </div>
+                    <br>
+                    <!-- Set File Name -->
+                    <input class="short" id="export-config-file-name" type="text" placeholder="bluesky-raffle-config">
+                    <label class="input-label" for="export-config-file-name">.json</span>
+                    <br><br>
+                    <button id="confirm-export-config">Export Raffle</button>
                 </div>
             </div>
         </div>

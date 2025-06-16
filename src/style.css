@@ -3,7 +3,6 @@ html, body {
     width: 100%;
     margin: auto;
     background-color: #161e27;
-    overflow-x: hidden;
 }
 link [rel="icon"] {
     border-radius: 50%;
@@ -57,10 +56,6 @@ h1 {
     text-wrap: nowrap;
     
 }
-.small {
-    color: rgb(163, 163, 163);
-    text-wrap: nowrap;
-}
 
 h2 {
     display: inline;
@@ -70,7 +65,7 @@ h2 {
     font-size: clamp(15pt, 3vw, 20pt);
     text-wrap: nowrap;
 }
-.slim {
+h2.slim {
     padding-top: 0%;
     padding-bottom: 0%;
     color: rgb(163, 163, 163);
@@ -78,14 +73,25 @@ h2 {
     text-wrap: nowrap;
 }
 
-h3 { 
-    /* Error Display Text */
+h3 {
+    display: inline;
     padding-left: 2%;
-    opacity: 0;
-    color: rgb(255, 172, 172);
+    color: rgb(255, 255, 255);
     font-family: Arial, Helvetica, sans-serif;
     font-style: italic;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+}
+h3.message {
+    color: rgb(255, 224, 112);
+    text-shadow: -1px -1px 0 rgb(115, 86, 0), 1px -1px 0 rgb(115, 86, 0), -1px 1px 0 rgb(115, 86, 0), 1px 1px 0 rgb(115, 86, 0);
+}
+h3.warning {
+    color: rgb(255, 172, 172);
     text-shadow: -1px -1px 0 red, 1px -1px 0 red, -1px 1px 0 red, 1px 1px 0 red;
+}
+h3.success {
+    color: rgb(172, 255, 172);
+    text-shadow: -1px -1px 0 rgb(0, 167, 25), 1px -1px 0 rgb(0, 167, 25), -1px 1px 0 rgb(0, 167, 25), 1px 1px 0 rgb(0, 167, 25);
 }
 
 p {
@@ -102,7 +108,7 @@ label {
     color: white;
     font-family: Arial, Helvetica, sans-serif;
 }
-.input-label {
+label.input-label {
     line-height: 20pt;
     font-size: larger;
 }
@@ -138,6 +144,13 @@ textarea {
 }
 .long {
     width: max(450px, 50%);
+    height: 30px;
+    padding-left: 10px;
+    border-radius: 5px;
+    border-style: hidden;
+}
+.short {
+    width: max(200px, 20%);
     height: 30px;
     padding-left: 10px;
     border-radius: 5px;
@@ -287,7 +300,7 @@ button:active,
     margin-left: 1.5%;
 }
 
-/* Config Import/Export Display Elements */
+/* Overlay Display Elements */
 
 /* Containers */
 .file-overlay {

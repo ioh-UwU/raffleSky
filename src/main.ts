@@ -15,7 +15,7 @@ function toggleElementVisibility(ids: (string | HTMLElement)[], visible?: boolea
         }
     }
 }
-var timerIDs = [];
+var messageTimerIDs = [];
 function fadeInElement(element: HTMLElement, msDuration: number) {
     const step = 0.05; // 20 times
     const delay = msDuration / 20;
@@ -30,7 +30,9 @@ function fadeInElement(element: HTMLElement, msDuration: number) {
         }
         element.style.opacity = opacity.toPrecision(2);
     }, delay);
-    timerIDs.push(timer);
+    if (element.hasAttribute("value")) {
+        messageTimerIDs.push(timer);
+    }
 }
 function fadeOutElement(element: HTMLElement, msDuration: number) {
     const step = 0.05; // 20 times
@@ -45,7 +47,9 @@ function fadeOutElement(element: HTMLElement, msDuration: number) {
         }
         element.style.opacity = opacity.toPrecision(2);
     }, delay);
-    timerIDs.push(timer);
+    if (element.hasAttribute("value")) {
+        messageTimerIDs.push(timer);
+    }
 }
 
 function createFilterTag(inputText: string | HTMLInputElement, outputList: HTMLElement) {
@@ -91,21 +95,30 @@ function tagTextboxShortcuts(event: KeyboardEvent, inputText: HTMLInputElement, 
     }
 }
 
-function showMessage(text: string, upload?: boolean) {
+function showMessage(text: string, { upload=false, type }: { upload?: boolean, type: string }) {
     if (upload) {
-        var errorTextElement = document.getElementById("upload-error");
+        var messageContainer = document.getElementById("upload-message");
     } else {
-        var errorTextElement = document.getElementById("error");
+        var messageContainer = document.getElementById("raffle-message");
     }
-    errorTextElement.textContent = text;
-    for (let timer of timerIDs) {
+    messageContainer.style.display = "inline"
+    let message = messageContainer.children[0];
+    if (type === "warning") {
+        message.className = "warning";
+    } else if (type === "success") {
+        message.className = "success";
+    } else {
+        message.className = "message";
+    }
+    message.textContent = text;
+    for (let timer of messageTimerIDs) {
         window.clearInterval(timer);
     }
-    fadeInElement(errorTextElement, 500);
-    let errorTimeout = setTimeout(() => {
-        fadeOutElement(errorTextElement, 1000);
+    fadeInElement(messageContainer, 500);
+    let messageTimeout = setTimeout(() => {
+        fadeOutElement(messageContainer, 1000);
     }, 3000);
-    timerIDs.push(errorTimeout);
+    messageTimerIDs.push(messageTimeout);
 }
 
 // Initialize page elements
@@ -117,27 +130,13 @@ importConfigButton.addEventListener("click", () => {
     fadeInElement(importConfigOverlay, 40);
     importConfigFileUploadInput.click();
 });
-const exportConfigButton = document.getElementById("export-config");
-exportConfigButton.addEventListener("click", () => {
-    let exportConfig = {
-        raffleConfig: getRaffleConfig(),
-        candidates: candidates,
-        winners: winners,
-    }
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportConfig, null, 2));
-    let downloadAnchorElement = document.getElementById("download-anchor");
-    downloadAnchorElement.setAttribute("href", dataStr);
-    downloadAnchorElement.setAttribute("download", "bluesky-raffle-config.json");
-    downloadAnchorElement.click();
-});
-
 const importConfigOverlay = document.getElementById("import-config-overlay");
 document.addEventListener("keyup", (event) => {
     if (event.key === "Escape" && importConfigOverlay.className === "show") {
         fadeOutElement(importConfigOverlay, 40);
     }
 });
-const importConfigExitButton = document.getElementById("exit-button")
+const importConfigExitButton = document.getElementById("import-exit-button")
 importConfigExitButton.addEventListener("click", () => {
     fadeOutElement(importConfigOverlay, 40);
 });
@@ -152,11 +151,56 @@ const confirmImportConfigButton = document.getElementById("confirm-import-config
 confirmImportConfigButton.addEventListener("click", async () => {
     let configFile = importConfigFileUploadInput.files[0];
     if (configFile === undefined) {
-        showMessage("No file selected.", true);
+        showMessage("No file selected.", {upload: true, type: "warning"} );
     } else {
         let config = JSON.parse(await configFile.text());
         importRaffle(config);
         fadeOutElement(importConfigOverlay, 40);
+        showMessage("Config import success!", { type: "success" });
+    }
+});
+
+const exportConfigOverlay = document.getElementById("export-config-overlay");
+document.addEventListener("keyup", (event) => {
+    if (event.key === "Escape" && exportConfigOverlay.className === "show") {
+        fadeOutElement(exportConfigOverlay, 40);
+    }
+});
+const exportConfigExitButton = document.getElementById("export-exit-button");
+exportConfigExitButton.addEventListener("click", () => {  
+    fadeOutElement(exportConfigOverlay, 40);
+});
+
+const exportConfigButton = document.getElementById("export-config");
+exportConfigButton.addEventListener("click", () => {
+    exportConfigFileNameInput.value = "";
+    fadeInElement(exportConfigOverlay, 40);
+});
+const exportConfigFileNameInput = <HTMLInputElement>document.getElementById("export-config-file-name");
+const confirmExportConfigButton = document.getElementById("confirm-export-config");
+confirmExportConfigButton.addEventListener("click", () => {
+    if (exportConfigFileNameInput.value !== "") {
+        // First replace: remove file extension.
+        // Second replace: remove uncommon characters.
+        var exportFileName = exportConfigFileNameInput.value.replace(/\.[a-zA-Z0-9-_]+$/g, "").replace(/[^a-zA-Z0-9-_]/g, "-");
+    } else {
+        var exportFileName = "bluesky-raffle-config";
+    }
+    try {
+        let exportConfig = {
+            raffleConfig: getRaffleConfig(),
+            candidates: candidates,
+            winners: winners,
+        }
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportConfig, null, 2));
+        let downloadAnchorElement = document.getElementById("download-anchor");
+        downloadAnchorElement.setAttribute("href", dataStr);
+        downloadAnchorElement.setAttribute("download", `${exportFileName}.json`);
+        downloadAnchorElement.click();
+        fadeOutElement(exportConfigOverlay, 40);
+        showMessage("Export successful!", { type: "success" });
+    } catch {
+        showMessage("Export unsuccessful.", { type: "warning" });
     }
 });
 
@@ -530,7 +574,7 @@ function pickWinners({ numWinners, reroll=false }: { numWinners?: number, reroll
                         displayWinners.replaceChild(newWinnerElement, oldWinner);
                         document.getElementById(`${newWinnerElement.id}-info`).className = "winner-info-rerolled";
                     } else {
-                        showMessage("No more candidates to reroll with!");
+                        showMessage("No more candidates to reroll with!", { type: "message" });
                     }
                 }
             }
@@ -599,7 +643,7 @@ function addWinner(winner: Object) {
 function showWinners() {
     winnerSection.className = "show";
     displayWinners.className = "show";
-    showMessage("");
+    showMessage("Success!", { type: "success" });
     
     document.getElementById("scroll-point").scrollIntoView({
         behavior: "smooth",
@@ -644,15 +688,15 @@ function toggleReroll(targetId: string) {
 
 // Raffle procedure
 async function runRaffle() {
-    showMessage("Please wait...")
+    showMessage("Please wait...", { type: "message" });
     clearWinners();
     let raffleConfig = getRaffleConfig();
     if (raffleConfig.link === "") {
-        showMessage("No post specifiied.");
+        showMessage("No post specifiied.", { type: "warning" });
         return;
     }
     if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
-        showMessage("No raffle options set!");
+        showMessage("No raffle options set!", { type: "warning" });
         return;
     }
     let agent = await signIn();
@@ -690,7 +734,7 @@ async function runRaffle() {
     if (candidates.length > 0) {
         winners = candidates.length > raffleConfig.winners ? pickWinners({ numWinners: raffleConfig.winners }) : candidates;
     } else {
-        showMessage("No viable candidates. No winners!");
+        showMessage("No viable candidates. No winners!", { type: "message" });
         return;
     }
     for (let winner of winners) {
