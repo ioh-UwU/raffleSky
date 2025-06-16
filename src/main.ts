@@ -1,14 +1,22 @@
 import { AtpAgent } from "@atproto/api";
 
 // Page functionality
-function toggleElementVisibility(ids:string[]) {
+function toggleElementVisibility(ids: (string | HTMLElement)[], visible?: boolean) {
     for (let id of ids) {
-        let element = document.getElementById(id);
-        element.className = element.className === "hide" ? "show" : "hide";
+        if (typeof id === "string") {
+            var element = document.getElementById(id);
+        } else {
+            var element = id;
+        }
+        if (visible !== undefined) {
+            element.className = visible ? "show" : "hide";
+        } else {
+            element.className = element.className === "hide" ? "show" : "hide";
+        }
     }
 }
-let timerIDs = [];
-function fadeInElement(element:HTMLElement, msDuration:number) {
+var timerIDs = [];
+function fadeInElement(element: HTMLElement, msDuration: number) {
     const step = 0.05; // 20 times
     const delay = msDuration / 20;
     let opacity = 0;
@@ -24,7 +32,7 @@ function fadeInElement(element:HTMLElement, msDuration:number) {
     }, delay);
     timerIDs.push(timer);
 }
-function fadeOutElement(element:HTMLElement, msDuration:number) {
+function fadeOutElement(element: HTMLElement, msDuration: number) {
     const step = 0.05; // 20 times
     const delay = msDuration / 20;
     let opacity = 1;
@@ -40,8 +48,13 @@ function fadeOutElement(element:HTMLElement, msDuration:number) {
     timerIDs.push(timer);
 }
 
-function createFilterTag(inputText:HTMLInputElement, outputList:HTMLElement) {
-    let newTagText = inputText.value.trim();
+function createFilterTag(inputText: (string | HTMLInputElement), outputList: HTMLElement) {
+    if (typeof inputText === "string") {
+        var newTagText = inputText.trim();
+    } else {
+        var newTagText = inputText.value.trim();
+        inputText.value = "";
+    }
     if (newTagText !== "") {
         let newTag = true;
         for (let tag of outputList.children) {
@@ -58,16 +71,15 @@ function createFilterTag(inputText:HTMLInputElement, outputList:HTMLElement) {
             newTagElement.addEventListener("click", () => {newTagElement.remove()});
         }
     }
-    inputText.value = "";
 }
-function getTags(tagList:HTMLInputElement) {
+function getTags(tagList: HTMLInputElement) {
     let output = [];
     for (let tag of tagList.children) {
         output.push(tag.textContent);
     }
-    return output.length > 0 ? output : [""];
+    return output.length > 0 ? output : [];
 }
-function tagTextboxShortcuts(event:KeyboardEvent, inputText:HTMLInputElement, outputList:HTMLElement) {
+function tagTextboxShortcuts(event: KeyboardEvent, inputText: HTMLInputElement, outputList: HTMLElement) {
     if (event.key === "Enter") {
         createFilterTag(inputText, outputList);
     } else if (event.key === "Escape") {
@@ -79,14 +91,19 @@ function tagTextboxShortcuts(event:KeyboardEvent, inputText:HTMLInputElement, ou
     }
 }
 
-function showError(text:string) {
-    errorText.textContent = text;
+function showMessage(text: string, upload?: boolean) {
+    if (upload) {
+        var errorTextElement = document.getElementById("upload-error");
+    } else {
+        var errorTextElement = document.getElementById("error");
+    }
+    errorTextElement.textContent = text;
     for (let timer of timerIDs) {
         window.clearInterval(timer);
     }
-    fadeInElement(errorText, 500);
+    fadeInElement(errorTextElement, 500);
     let errorTimeout = setTimeout(() => {
-        fadeOutElement(errorText, 1000);
+        fadeOutElement(errorTextElement, 1000);
     }, 3000);
     timerIDs.push(errorTimeout);
 }
@@ -95,12 +112,23 @@ function showError(text:string) {
 const importConfigButton = document.getElementById("import-config");
 importConfigButton.addEventListener("click", () => {
     importConfigFileUploadInput.value = null;
+    importConfigKeepLinkInput.checked = true;
+    importConfigKeepWinnersInput.checked = true;
     fadeInElement(importConfigOverlay, 40);
     importConfigFileUploadInput.click();
 });
 const exportConfigButton = document.getElementById("export-config");
 exportConfigButton.addEventListener("click", () => {
-    //TODO: Implement this.
+    let exportConfig = {
+        raffleConfig: getRaffleConfig(),
+        candidates: candidates,
+        winners: winners,
+    }
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportConfig, null, 2));
+    let downloadAnchorElement = document.getElementById("download-anchor");
+    downloadAnchorElement.setAttribute("href", dataStr);
+    downloadAnchorElement.setAttribute("download", "bluesky-raffle-config.json");
+    downloadAnchorElement.click();
 });
 
 const importConfigOverlay = document.getElementById("import-config-overlay");
@@ -121,9 +149,15 @@ const importConfigKeepWinnersInput = <HTMLInputElement>document.getElementById("
 importConfigKeepWinnersInput.checked = true;
 
 const confirmImportConfigButton = document.getElementById("confirm-import-config");
-confirmImportConfigButton.addEventListener("click", () => {
-    //TODO: Implement this.
-    fadeOutElement(importConfigOverlay, 40);
+confirmImportConfigButton.addEventListener("click", async () => {
+    let configFile = importConfigFileUploadInput.files[0];
+    if (configFile === undefined) {
+        showMessage("No file selected.", true);
+    } else {
+        let config = JSON.parse(await configFile.text());
+        importRaffle(config);
+        fadeOutElement(importConfigOverlay, 40);
+    }
 });
 
 const linkInput = <HTMLInputElement>document.getElementById("link");
@@ -170,11 +204,15 @@ anyEmbedCheckbox.addEventListener("click", () => {
 });
 const hostReplyCheckbox = <HTMLInputElement>document.getElementById("host-reply");
 hostReplyCheckbox.checked = false;
-hostReplyCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-div"])});
+hostReplyCheckbox.addEventListener("click", () => { 
+    toggleElementVisibility(["specific-reply-div"])
+});
 
 const hostReplySpecificCheckbox = <HTMLInputElement>document.getElementById("specific-reply");
 hostReplySpecificCheckbox.checked = false;
-hostReplySpecificCheckbox.addEventListener("click", () => {toggleElementVisibility(["specific-reply-text"])});
+hostReplySpecificCheckbox.addEventListener("click", () => {
+    toggleElementVisibility(["specific-reply-text"])
+});
 
 
 const hostReplyInput = <HTMLInputElement>document.getElementById("reply-text");
@@ -182,7 +220,9 @@ const hostReplyList = <HTMLInputElement>document.getElementById("reply-text-list
 hostReplyInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, hostReplyInput, hostReplyList));
 
 const hostReplyAddButton = document.getElementById("add-reply-button");
-hostReplyAddButton.addEventListener("click", () => {createFilterTag(hostReplyInput, hostReplyList)});
+hostReplyAddButton.addEventListener("click", () => {
+    createFilterTag(hostReplyInput, hostReplyList)
+});
 
 const replyCaseSensitiveCheckbox = <HTMLInputElement>document.getElementById("case-sensitive");
 const replyExactMatchCheckbox = <HTMLInputElement>document.getElementById("exact-match");
@@ -196,23 +236,25 @@ const userFilterList = <HTMLInputElement>document.getElementById("user-filter-li
 userFilterInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, userFilterInput, userFilterList));
 
 const userFilterAddButton = document.getElementById("add-user-filter-button");
-userFilterAddButton.addEventListener("click", () => {createFilterTag(userFilterInput, userFilterList)});
+userFilterAddButton.addEventListener("click", () => {
+    createFilterTag(userFilterInput, userFilterList)
+});
 
 const raffleButton = document.getElementById("run-raffle");
 raffleButton.addEventListener("click", () => runRaffle())
 
-const errorText = document.getElementById("error");
-
-var rerollCandidates = [];
 const winnerSection = document.getElementById("winner-section");
 const clearWinnersButton = document.getElementById("clear-winners");
 clearWinnersButton.addEventListener("click", () => clearWinners());
 const rerollButton = document.getElementById("reroll");
-rerollButton.addEventListener("click", () => rerollWinners());
+rerollButton.addEventListener("click", () => pickWinners({ reroll: true }));
 const displayWinners = document.getElementById("winner-grid");
 
+var candidates = [];
+var winners = [];
+
 // Config
-function setRaffleConfig() {
+function getRaffleConfig() {
     let raffleConfig = {
         link: linkInput.value,
 
@@ -239,6 +281,58 @@ function setRaffleConfig() {
     }
     return raffleConfig;
 }
+function importRaffle(config: Object) {
+    let raffleConfig = config["raffleConfig"];
+    clearWinners();
+
+    if (importConfigKeepLinkInput.checked) {
+        linkInput.value = raffleConfig["link"];
+    } else {
+        linkInput.value = "";
+    }
+    numWinnersInput.value = raffleConfig["winners"];
+    followCheckbox.checked = raffleConfig["follow"];
+    likeCheckbox.checked = raffleConfig["like"];
+    repostCheckbox.checked = raffleConfig["repost"];
+    commentCheckbox.checked = raffleConfig["comment"];
+    if (commentCheckbox.checked) {
+        toggleElementVisibility(["embed-config", "host-reply-div"], true);
+    }
+    imageEmbedCheckbox.checked = raffleConfig["embedTypes"]["image"];
+    videoEmbedCheckbox.checked = raffleConfig["embedTypes"]["video"];
+    gifEmbedCheckbox.checked = raffleConfig["embedTypes"]["gif"];
+    anyEmbedCheckbox.checked = raffleConfig["embedTypes"]["any"];
+    hostReplyCheckbox.checked = raffleConfig["hostReply"]["enabled"];
+    if (hostReplyCheckbox.checked) {
+        toggleElementVisibility(["specific-reply-div"], true);
+    }
+    hostReplySpecificCheckbox.checked = raffleConfig["hostReply"]["specific"];
+    if (hostReplySpecificCheckbox.checked) {
+        toggleElementVisibility(["specific-reply-text"], true);
+    }
+    for (let tag of raffleConfig["hostReply"]["specificReplies"]) {
+        createFilterTag(tag, hostReplyList);
+    }
+    replyCaseSensitiveCheckbox.checked = raffleConfig["hostReply"]["caseSensitive"];
+    replyExactMatchCheckbox.checked = raffleConfig["hostReply"]["exact"];
+    userFilterCheckbox.checked = raffleConfig["blockList"];
+    if (userFilterCheckbox.checked) {
+        toggleElementVisibility(["user-filter"], true);
+    }
+    for (let tag of raffleConfig["blockedHandles"]) {
+        createFilterTag(tag, userFilterList);
+    }
+    if (importConfigKeepWinnersInput.checked) {
+        winners = config["winners"];
+        if (winners.length > 0) {
+            candidates = config["candidates"];
+            for (let [_, winner] of Object.entries(winners)) {
+                displayWinners.appendChild(addWinner(winner));
+            }
+            showWinners();
+        }
+    }
+}
 
 // API calls
 async function signIn() {
@@ -247,7 +341,7 @@ async function signIn() {
 }
 
 // Raffle data requests
-async function getHostInfo(agent:AtpAgent, link:string) {
+async function getHostInfo(agent: AtpAgent, link: string) {
     let splitUri = link.replace("//", "/").split("/");
     let linkType = link.substring(0, 5) === "at://" ? "at" : "https";
     let actorParam = linkType === "https" ? splitUri[3] : splitUri[1];
@@ -267,7 +361,7 @@ async function getHostInfo(agent:AtpAgent, link:string) {
     }
 }
 
-async function getFollows(agent:AtpAgent, hostActor:string) {
+async function getFollows(agent: AtpAgent, hostActor: string) {
     let output = [];
     let enumCursor = "";
     while (enumCursor !== undefined) {
@@ -278,7 +372,7 @@ async function getFollows(agent:AtpAgent, hostActor:string) {
     return output;
 }
 
-async function getLikes(agent:AtpAgent, postUri:string) {
+async function getLikes(agent: AtpAgent, postUri: string) {
     let likes = [];
     let enumCursor = "";
     while (enumCursor !== undefined) {
@@ -293,7 +387,7 @@ async function getLikes(agent:AtpAgent, postUri:string) {
     return output;
 }
 
-async function getReposts(agent:AtpAgent, postUri:string) {
+async function getReposts(agent: AtpAgent, postUri: string) {
     let output = [];
     let enumCursor = "";
     while (enumCursor !== undefined) {
@@ -304,11 +398,11 @@ async function getReposts(agent:AtpAgent, postUri:string) {
     return output;
 }
 
-async function getComments(agent:AtpAgent, postUri:string) {
+async function getComments(agent: AtpAgent, postUri: string) {
     return (await agent.app.bsky.feed.getPostThread({uri: postUri, depth: 2})).data.thread["replies"];
 }
 
-function commentEmbedFilter(comments:Object, embedTypes:Object) {
+function commentEmbedFilter(comments: Object, embedTypes: Object) {
     let output = [];
     for (let [_, comment] of Object.entries(comments)) {
         try { // Check if embed exists.
@@ -339,7 +433,7 @@ function commentEmbedFilter(comments:Object, embedTypes:Object) {
     }
     return output;
 }
-function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Object) {
+function commentReplyFilter(comments: Object, hostHandle: string, replyConfig: Object) {
     let output = [];
     for (let [_, comment] of Object.entries(comments)) {
         let replies = comment["replies"];
@@ -375,7 +469,7 @@ function commentReplyFilter(comments:Object, hostHandle:string, replyConfig:Obje
     }
     return output;
 }
-function getCommentActors(comments:Object) {
+function getCommentActors(comments: Object) {
     let output = [];
     for (let [_, comment] of Object.entries(comments)) {
         output.push(comment["post"]["author"]);
@@ -383,7 +477,7 @@ function getCommentActors(comments:Object) {
     return output;
 }
 
-function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<string>) {
+function getCandidates(candidateGroups: Array<Array<Object>>, denyList: Array<string>) {
     let prevBuffer = [];
     let output = [];
     let firstGroup = true;
@@ -407,30 +501,52 @@ function getCandidates(candidateGroups:Array<Array<Object>>, denyList:Array<stri
             output = [];
         }
     }
-    // Apply user filter.
+    // Apply user filter and add "rerolled property" (used by imported configs).
     for (let [_, candidate] of Object.entries(prevBuffer)) {
         if (!denyList.includes(candidate["handle"])) {
+            Object.defineProperty(candidate, "rerolled", { value: false, writable: true, enumerable: true });
             output.push(candidate);
         }
     }
     return output;
 }
 
-function pickWinners(candidates:Array<Object>, numWinners:number, reroll?:boolean) {
-    if (!reroll) {
-        clearWinners();
+function pickWinners({ numWinners, reroll=false }: { numWinners?: number, reroll?: boolean }) {
+    if (reroll) {
+        for (let oldWinner of displayWinners.children) {
+            for (let child of oldWinner.children) {
+                if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
+                    if (candidates.length > 0) {
+                        let winnerIndex = Math.floor(Math.random() * candidates.length);
+                        let newWinner = candidates.splice(winnerIndex, 1)[0];
+                        newWinner["rerolled"] = true;
+                        let newWinnerElement = addWinner(newWinner);
+                        for (let winner of winners) {
+                            if (winner["handle"] === oldWinner.id) {
+                                winners.splice(winners.indexOf(winner), 1, newWinner);
+                                break;
+                            }
+                        }
+                        displayWinners.replaceChild(newWinnerElement, oldWinner);
+                        document.getElementById(`${newWinnerElement.id}-info`).className = "winner-info-rerolled";
+                    } else {
+                        showMessage("No more candidates to reroll with!");
+                    }
+                }
+            }
+        }
+    } else {
+        for (let roll = 0; roll < numWinners; roll++) {
+            let winnerIndex = Math.floor(Math.random() * candidates.length);
+            let newWinner = candidates.splice(winnerIndex, 1);
+            winners.push(newWinner);
+            winners = winners.flat();
+        }
     }
-    let winners = [];
-    for (let roll = 0; roll < numWinners; roll++) {
-        let winnerIndex = Math.floor(Math.random() * candidates.length);
-        winners.push(candidates.splice(winnerIndex, 1));
-        winners = winners.flat();
-    }
-    rerollCandidates = candidates;
     return winners;
 }
 
-function addWinner(winner:Object) {
+function addWinner(winner: Object) {
     let handle = winner["handle"];
     let avatar = winner["avatar"];
     let profile = `https://bsky.app/profile/${handle}`;
@@ -451,7 +567,11 @@ function addWinner(winner:Object) {
 
     let infoDiv = document.createElement("div");
     infoDiv.id = `${handle}-info`;
-    infoDiv.className = "winner-info";
+    if (winner["rerolled"]) {
+        infoDiv.className = "winner-info-rerolled";
+    } else {
+        infoDiv.className = "winner-info";
+    }
     winnerSpan.appendChild(infoDiv);
 
     let displayName = document.createElement("p");
@@ -476,7 +596,20 @@ function addWinner(winner:Object) {
     return winnerSpan;
 }
 
+function showWinners() {
+    winnerSection.className = "show";
+    displayWinners.className = "show";
+    showMessage("");
+    
+    document.getElementById("scroll-point").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
 function clearWinners() {
+    winners = [];
+    candidates = [];
     while (displayWinners.children.length > 0) {
         displayWinners.children[0].remove();
     }
@@ -484,7 +617,7 @@ function clearWinners() {
     displayWinners.className = "hide";
 }
 
-function toggleReroll(targetId:string) {
+function toggleReroll(targetId: string) {
     let selection = document.getElementById(targetId);
     if (selection.className === "winner-info") {
         selection.className = "winner-info-reroll-select";
@@ -509,32 +642,17 @@ function toggleReroll(targetId:string) {
     }
 }
 
-function rerollWinners() {
-    for (let oldWinner of displayWinners.children) {
-        for (let child of oldWinner.children) {
-            if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
-                if (rerollCandidates.length > 0) {
-                    let newWinner = pickWinners(rerollCandidates, 1, true)[0];
-                    let newWinnerElement = addWinner(newWinner);
-                    displayWinners.replaceChild(newWinnerElement, oldWinner);
-                    document.getElementById(`${newWinnerElement.id}-info`).className = "winner-info-rerolled";
-                }
-            }
-        }
-    }
-}
-
 // Raffle procedure
 async function runRaffle() {
-    showError("Please wait...")
+    showMessage("Please wait...")
     clearWinners();
-    let raffleConfig = setRaffleConfig();
+    let raffleConfig = getRaffleConfig();
     if (raffleConfig.link === "") {
-        showError("No post specifiied.");
+        showMessage("No post specifiied.");
         return;
     }
     if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
-        showError("No raffle options set!");
+        showMessage("No raffle options set!");
         return;
     }
     let agent = await signIn();
@@ -568,25 +686,15 @@ async function runRaffle() {
         }
         comments = getCommentActors(comments);
     }
-    let candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
+    candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
     if (candidates.length > 0) {
-        var winners = candidates.length > raffleConfig.winners ? pickWinners(candidates, raffleConfig.winners) : candidates;
+        winners = candidates.length > raffleConfig.winners ? pickWinners({ numWinners: raffleConfig.winners }) : candidates;
     } else {
-        showError("No viable candidates. No winners!");
+        showMessage("No viable candidates. No winners!");
         return;
     }
     for (let winner of winners) {
         displayWinners.appendChild(addWinner(winner));
     }
-    winnerSection.className = "show";
-    displayWinners.className = "show";
-
-    errorText.className = "hide";
-    errorText.style.opacity = "0";
-    errorText.textContent = "unset";
-
-    document.getElementById("scroll-point").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    showWinners();
 }
