@@ -3,11 +3,14 @@ Project files for a web app I've made for hosting highly customizable raffles on
 _Uses Node.js and Vite_
 
 To use the site, simply enter the link to the post you're running your raffle on and set your configuration options. <br>
-If available, more options related to each parameter will become visible as they are selected.
+If available, more options related to each parameter will become visible as they are selected. <br>
+Raffles may be exported to be reused later.
 
 ## Plans for New Features
-* [Completed] Options to import and export configurations and full raffles, including chosen and rerolled winners.
-* Options for required content in candidate comments.
+* ✅🚧 Options to import and export configurations and full raffles, including chosen and rerolled winners. <br>
+  (Currently making a few small tweaks and optimizations before moving on.)
+* 🔜 Options for required content in candidate comments.
+* Mobile layout improvements.
 * Option for minimum account age.
 * Options for minimum and maximum follower/following counts.
 * Regex support for all text filters (blocked users, host and candidate comments, and any additional fields).
