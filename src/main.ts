@@ -9,46 +9,23 @@ function toggleElementVisibility(ids: (string | HTMLElement)[], visible?: boolea
             var element = id;
         }
         if (visible !== undefined) {
-            element.className = visible ? "show" : "hide";
+            if (visible) {
+                element.style.display = "inherit";
+                element.classList.remove("hide");
+                element.classList.add("show");
+            } else {
+                element.classList.remove("show");
+                element.classList.add("hide");
+            }
         } else {
-            element.className = element.className === "hide" ? "show" : "hide";
+            if (element.classList.contains("show")) {
+                element.classList.remove("show");
+                element.classList.add("hide");
+            } else {
+                element.classList.remove("hide");
+                element.classList.add("show");
+            }
         }
-    }
-}
-var messageTimerIDs = [];
-function fadeInElement(element: HTMLElement, msDuration: number) {
-    const step = 0.05; // 20 times
-    const delay = msDuration / 20;
-    let opacity = 0;
-    element.style.opacity = "0";
-    element.className = "show";
-    let timer = setInterval(() => {
-        opacity += step;
-        if (opacity > 1) {
-            opacity = 1;
-            window.clearInterval(timer);
-        }
-        element.style.opacity = opacity.toPrecision(2);
-    }, delay);
-    if (element.hasAttribute("value")) {
-        messageTimerIDs.push(timer);
-    }
-}
-function fadeOutElement(element: HTMLElement, msDuration: number) {
-    const step = 0.05; // 20 times
-    const delay = msDuration / 20;
-    let opacity = 1;
-    let timer = setInterval(() => {
-        opacity -= step;
-        if (opacity < 0) {
-            opacity = 0;
-            element.className = "hide";
-            window.clearInterval(timer);
-        }
-        element.style.opacity = opacity.toPrecision(2);
-    }, delay);
-    if (element.hasAttribute("value")) {
-        messageTimerIDs.push(timer);
     }
 }
 
@@ -106,29 +83,33 @@ function optimizeUserObject(user: Object) {
 }
 
 function showMessage(text: string, { upload=false, type }: { upload?: boolean, type: string }) {
-    if (upload) {
-        var messageContainer = document.getElementById("upload-message");
-    } else {
-        var messageContainer = document.getElementById("raffle-message");
+    for (let i = 0; i < 100; i++) {
+        window.clearTimeout(i);
     }
-    messageContainer.style.display = "inline"
-    let message = messageContainer.children[0];
-    if (type === "warning") {
-        message.className = "warning";
-    } else if (type === "success") {
-        message.className = "success";
+    if (upload) {
+        var message = document.getElementById("upload-message");
     } else {
-        message.className = "message";
+        var message = document.getElementById("raffle-message");
+    }
+    if (type === "warning") {
+        message.classList.add("warning");
+        message.classList.remove("success");
+        message.classList.remove("message");
+
+    } else if (type === "success") {
+        message.classList.add("success");
+        message.classList.remove("message");
+        message.classList.remove("warning");
+    } else {
+        message.classList.add("message");
+        message.classList.remove("warning");
+        message.classList.remove("success");
     }
     message.textContent = text;
-    for (let timer of messageTimerIDs) {
-        window.clearInterval(timer);
-    }
-    fadeInElement(messageContainer, 500);
-    let messageTimeout = setTimeout(() => {
-        fadeOutElement(messageContainer, 1000);
-    }, 3000);
-    messageTimerIDs.push(messageTimeout);
+    toggleElementVisibility([message], true)
+    window.setTimeout(() => {
+        toggleElementVisibility([message], false)
+    }, 5000);
 }
 
 // Initialize page elements
@@ -137,18 +118,18 @@ importConfigButton.addEventListener("click", () => {
     importConfigFileUploadInput.value = null;
     importConfigKeepLinkInput.checked = true;
     importConfigKeepWinnersInput.checked = true;
-    fadeInElement(importConfigOverlay, 40);
+    toggleElementVisibility(["import-config-overlay"], true);
     importConfigFileUploadInput.click();
 });
 const importConfigOverlay = document.getElementById("import-config-overlay");
 document.addEventListener("keyup", (event) => {
     if (event.key === "Escape" && importConfigOverlay.className === "show") {
-        fadeOutElement(importConfigOverlay, 40);
+        toggleElementVisibility([importConfigOverlay], false);
     }
 });
 const importConfigExitButton = document.getElementById("import-exit-button")
 importConfigExitButton.addEventListener("click", () => {
-    fadeOutElement(importConfigOverlay, 40);
+    toggleElementVisibility([importConfigOverlay], false);
 });
 
 const importConfigFileUploadInput = <HTMLInputElement>document.getElementById("import-config-file-upload");
@@ -165,26 +146,26 @@ confirmImportConfigButton.addEventListener("click", async () => {
     } else {
         let config = JSON.parse(await configFile.text());
         importRaffle(config);
-        fadeOutElement(importConfigOverlay, 40);
+        toggleElementVisibility([importConfigOverlay], false);
         showMessage("Config import success!", { type: "success" });
     }
 });
 
 const exportConfigOverlay = document.getElementById("export-config-overlay");
 document.addEventListener("keyup", (event) => {
-    if (event.key === "Escape" && exportConfigOverlay.className === "show") {
-        fadeOutElement(exportConfigOverlay, 40);
+if (event.key === "Escape") {
+        toggleElementVisibility([exportConfigOverlay, importConfigOverlay], false);
     }
 });
 const exportConfigExitButton = document.getElementById("export-exit-button");
 exportConfigExitButton.addEventListener("click", () => {  
-    fadeOutElement(exportConfigOverlay, 40);
+    toggleElementVisibility([exportConfigOverlay], false);
 });
 
 const exportConfigButton = document.getElementById("export-config");
 exportConfigButton.addEventListener("click", () => {
     exportConfigFileNameInput.value = "";
-    fadeInElement(exportConfigOverlay, 40);
+    toggleElementVisibility([exportConfigOverlay], true);
 });
 const exportConfigFileNameInput = <HTMLInputElement>document.getElementById("export-config-file-name");
 exportConfigFileNameInput.addEventListener("keyup", (event) => {
@@ -222,7 +203,7 @@ confirmExportConfigButton.addEventListener("click", () => {
         downloadAnchorElement.setAttribute("href", dataStr);
         downloadAnchorElement.setAttribute("download", `${exportFileName}.json`);
         downloadAnchorElement.click();
-        fadeOutElement(exportConfigOverlay, 40);
+        toggleElementVisibility([exportConfigOverlay], false);
         showMessage("Export successful!", { type: "success" });
     } catch {
         showMessage("Export unsuccessful.", { type: "warning" });
@@ -231,7 +212,7 @@ confirmExportConfigButton.addEventListener("click", () => {
 
 const linkInput = <HTMLInputElement>document.getElementById("link");
 
-const numWinnersInput = <HTMLInputElement>document.getElementById("winners");
+const numWinnersInput = <HTMLInputElement>document.getElementById("num-winners");
 numWinnersInput.addEventListener("keyup", (event) => {
     if (event.key === "Escape") {
         numWinnersInput.value = "1";
@@ -243,7 +224,7 @@ const repostCheckbox = <HTMLInputElement>document.getElementById("repost");
 
 const commentCheckbox = <HTMLInputElement>document.getElementById("comment");
 commentCheckbox.checked = false;
-commentCheckbox.addEventListener("click", () => toggleElementVisibility(["embed-config", "host-reply-div"]));
+commentCheckbox.addEventListener("click", () => toggleElementVisibility(["embed-config"]));
 
 const imageEmbedCheckbox = <HTMLInputElement>document.getElementById("image-embed");
 imageEmbedCheckbox.addEventListener("click", () => {
@@ -312,12 +293,13 @@ userFilterAddButton.addEventListener("click", () => {
 const raffleButton = document.getElementById("run-raffle");
 raffleButton.addEventListener("click", () => runRaffle())
 
-const winnerSection = document.getElementById("winner-section");
+const winnerButtons = document.getElementById("winner-options");
 const clearWinnersButton = document.getElementById("clear-winners");
 clearWinnersButton.addEventListener("click", () => clearWinners());
 const rerollButton = document.getElementById("reroll");
 rerollButton.addEventListener("click", () => pickWinners({ reroll: true }));
-const displayWinners = document.getElementById("winner-grid");
+const winnerSection = document.getElementById("winners");
+const winnerGrid = document.getElementById("winner-grid");
 
 var candidates = [];
 var winners = [];
@@ -396,7 +378,7 @@ function importRaffle(config: Object) {
         if (winners.length > 0) {
             candidates = config["candidates"];
             for (let [_, winner] of Object.entries(winners)) {
-                displayWinners.appendChild(addWinner(winner));
+                winnerGrid.appendChild(addWinner(winner));
             }
             showWinners();
         }
@@ -582,7 +564,7 @@ function getCandidates(candidateGroups: Array<Array<Object>>, denyList: Array<st
 
 function pickWinners({ numWinners, reroll=false }: { numWinners?: number, reroll?: boolean }) {
     if (reroll) {
-        for (let oldWinner of displayWinners.children) {
+        for (let oldWinner of winnerGrid.children) {
             for (let child of oldWinner.children) {
                 if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
                     if (candidates.length > 0) {
@@ -596,7 +578,7 @@ function pickWinners({ numWinners, reroll=false }: { numWinners?: number, reroll
                                 break;
                             }
                         }
-                        displayWinners.replaceChild(newWinnerElement, oldWinner);
+                        winnerGrid.replaceChild(newWinnerElement, oldWinner);
                         document.getElementById(`${newWinnerElement.id}-info`).className = "winner-info-rerolled";
                     } else {
                         showMessage("No more candidates to reroll with!", { type: "message" });
@@ -666,10 +648,8 @@ function addWinner(winner: Object) {
 }
 
 function showWinners() {
-    winnerSection.className = "show";
-    displayWinners.className = "show";
+    toggleElementVisibility([winnerButtons, winnerSection], true);
     showMessage("Success!", { type: "success" });
-    
     document.getElementById("scroll-point").scrollIntoView({
         behavior: "smooth",
         block: "start"
@@ -679,11 +659,10 @@ function showWinners() {
 function clearWinners() {
     winners = [];
     candidates = [];
-    while (displayWinners.children.length > 0) {
-        displayWinners.children[0].remove();
+    toggleElementVisibility([winnerButtons, winnerSection], false)
+    while (winnerGrid.children.length > 0) {
+        winnerGrid.children[0].remove();
     }
-    winnerSection.className = "hide";
-    displayWinners.className = "hide";
 }
 
 function toggleReroll(targetId: string) {
@@ -697,18 +676,19 @@ function toggleReroll(targetId: string) {
     } else if ((selection.className === "winner-info-reroll-select-again")) {
         selection.className = "winner-info-rerolled";
     }
-    rerollButton.className = "hide";
-    for (let element of displayWinners.children) {
+    let rerollSelected = false;
+    for (let element of winnerGrid.children) {
         for (let child of element.children) {
             if (["winner-info-reroll-select", "winner-info-reroll-select-again"].includes(child.className)) {
-                rerollButton.className = "show";
+                rerollSelected = true;
                 break;
             }
         }
-        if (rerollButton.className === "show") {
+        if (rerollSelected) {
             break;
         }
     }
+    toggleElementVisibility([rerollButton], rerollSelected);
 }
 
 // Raffle procedure
@@ -720,7 +700,7 @@ async function runRaffle() {
         showMessage("No post specifiied.", { type: "warning" });
         return;
     }
-    if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].find((a) => {return a === false})) {
+    if ([raffleConfig.follow, raffleConfig.like, raffleConfig.repost, raffleConfig.comment].every(a => a === false)) {
         showMessage("No raffle options set!", { type: "warning" });
         return;
     }
@@ -763,7 +743,7 @@ async function runRaffle() {
         return;
     }
     for (let winner of winners) {
-        displayWinners.appendChild(addWinner(winner));
+        winnerGrid.appendChild(addWinner(winner));
     }
     showWinners();
 }

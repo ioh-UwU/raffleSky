@@ -7,15 +7,21 @@ html, body {
 link [rel="icon"] {
     border-radius: 50%;
 }
-.show {
+
+.hidable {
+    /* TODO: Make fade-in/out transitions work. */
+}
+.hidable.show {
     display: unset;
     height: unset;
-    visibility: visible;
+    margin: unset;
+    opacity: 100%;
 }
-.hide {
+.hidable.hide {
     display: none;
     height: 0px;
-    visibility: hidden;
+    margin: 0px;
+    opacity: 0%;
 }
 
 /* Containers */
@@ -42,7 +48,7 @@ link [rel="icon"] {
     grid-template-columns: repeat(4, 25%);
     justify-content: space-around;
 }
-.embed-option-div {
+.embed-option-span {
     text-align: center;
 }
 
@@ -170,6 +176,7 @@ input[type="number"] {
 button, 
 .button {
     margin: 0.5%;
+    margin-right: 1%;
     padding: 1%;
     padding-inline: 1.4%;
     color: white;
@@ -193,6 +200,9 @@ button:hover,
 button:active,
 .button:active {
     background-color: rgb(104, 187, 255);
+}
+button.nudge-right {
+    margin-right: 1.5%;
 }
 
 .tag {
@@ -223,18 +233,17 @@ button:active,
 
 /* Containers */
 .winner-grid {
-    display: grid;
-    grid-template-columns: auto auto auto;
+    display: flex;
+    flex-wrap: wrap;
     width: 100%;
-    align-content: space-evenly;
-    justify-self: center;
+    align-items: center;
     justify-content: center;
 }
 
 .winner {
     display: inline-grid;
     grid-template-columns: 33% 67%;
-    width: min(100%, 500px);
+    width: 550px;
     margin: 0.5%;
     background-color: rgb(0, 140, 255);
     border-width: 2pt;
@@ -294,11 +303,6 @@ button:active,
     align-self: center;
     justify-self: center;
     border-radius: 50%;
-}
-
-/* Inputs */
-.winner-buttons {
-    margin-left: 1.5%;
 }
 
 /* Overlay Display Elements */
