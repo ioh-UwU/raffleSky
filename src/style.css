@@ -176,6 +176,7 @@ button,
     background-color: rgb(0, 140, 255);
     border-width: 2px;
     border-radius: 10px;
+    border-color: rgb(0, 140, 255); /* Fallback for browsers that don't support rgba */
     border-color: rgba(0, 0, 0, 0);
     border-style: solid;
     font-family: Arial, Helvetica, sans-serif;
@@ -311,7 +312,8 @@ button:active,
     top: 0;
     overflow-x: hidden;
     z-index: 1;
-    background-color:rgba(0,0,0,0.5)
+    background-color:#161e27; /* Fallback for browsers that don't support rgba */
+    background-color:rgba(0,0,0,0.5);
 }
 .file-overlay-content {
     position: relative;

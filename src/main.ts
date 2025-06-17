@@ -187,6 +187,11 @@ exportConfigButton.addEventListener("click", () => {
     fadeInElement(exportConfigOverlay, 40);
 });
 const exportConfigFileNameInput = <HTMLInputElement>document.getElementById("export-config-file-name");
+exportConfigFileNameInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+        confirmExportConfigButton.click();
+    }
+});
 const confirmExportConfigButton = document.getElementById("confirm-export-config");
 confirmExportConfigButton.addEventListener("click", () => {
     if (exportConfigFileNameInput.value !== "") {
