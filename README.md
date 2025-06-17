@@ -7,8 +7,7 @@ If available, more options related to each parameter will become visible as they
 Raffles may be exported to be reused later.
 
 ## Plans for New Features
-* ✅🚧 Options to import and export configurations and full raffles, including chosen and rerolled winners. <br>
-  (Currently making a few small tweaks and optimizations before moving on.)
+* ✅ Options to import and export configurations and full raffles, including chosen and rerolled winners. <br>
 * 🔜 Options for required content in candidate comments.
 * Mobile layout improvements.
 * Option for minimum account age.
