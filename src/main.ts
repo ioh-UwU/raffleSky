@@ -95,6 +95,16 @@ function tagTextboxShortcuts(event: KeyboardEvent, inputText: HTMLInputElement, 
     }
 }
 
+function optimizeUserObject(user: Object) {
+    let optimizedUser = {
+        handle: user["handle"],
+        displayName: user["displayName"] || "",
+        avatar: user["avatar"],
+        rerolled: user["rerolled"]
+    }
+    return optimizedUser;
+}
+
 function showMessage(text: string, { upload=false, type }: { upload?: boolean, type: string }) {
     if (upload) {
         var messageContainer = document.getElementById("upload-message");
@@ -187,10 +197,20 @@ confirmExportConfigButton.addEventListener("click", () => {
         var exportFileName = "bluesky-raffle-config";
     }
     try {
+        let exportCandidates = [];
+        for (let candidate of candidates) {
+            candidate = optimizeUserObject(candidate);
+            exportCandidates.push(candidate);
+        }
+        let exportWinners = [];
+        for (let winner of winners) {
+            winner = optimizeUserObject(winner);
+            exportWinners.push(winner);
+        }
         let exportConfig = {
             raffleConfig: getRaffleConfig(),
-            candidates: candidates,
-            winners: winners,
+            candidates: exportCandidates,
+            winners: exportWinners,
         }
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportConfig, null, 2));
         let downloadAnchorElement = document.getElementById("download-anchor");
