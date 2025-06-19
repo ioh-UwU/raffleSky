@@ -8,18 +8,13 @@ link [rel="icon"] {
     border-radius: 50%;
 }
 
-.hidable {
-    /* TODO: Make fade-in/out transitions work. */
-}
-.hidable.show {
+.show {
     display: unset;
-    height: unset;
     margin: unset;
     opacity: 100%;
 }
-.hidable.hide {
+.hide {
     display: none;
-    height: 0px;
     margin: 0px;
     opacity: 0%;
 }

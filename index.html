@@ -64,7 +64,7 @@
             <label for="comment">Comment</label>
             <br>
             <!-- Comment Embed Filters -->
-            <div class="hidable hide" id="embed-config">
+            <div class="hide" id="embed-config">
                 <div class="component-subgroup">
                     <div class="embed-options">
                         <!-- Image -->
@@ -94,10 +94,10 @@
                         <input class="primary-option" type="checkbox" id="host-reply">
                         <label for="host-reply">with host reply</label>
                         <!-- Specific Host Reply Filters -->
-                        <span class="hidable hide" id="specific-reply-div">
+                        <span class="hide" id="specific-reply-div">
                             <input class="secondary-option" type="checkbox" id="specific-reply">
                             <label for="specific-reply">with specific text</label>
-                            <div class="hidable hide" id="specific-reply-text">
+                            <div class="hide" id="specific-reply-text">
                                 <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                                 <br>
                                 <button id="add-reply-button">Add</button>
@@ -118,7 +118,7 @@
             <input class="primary-option" type="checkbox" id="user-filter-check">
             <label for="user-filter-check">User Filter</label>
             <br>
-            <div class="hidable hide" id="user-filter">
+            <div class="hide" id="user-filter">
                 <div class="component-subgroup">
                     <textarea id="user-filter-text" rows="5" cols="44" placeholder="Type a user's handle, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                     <br>
@@ -129,21 +129,21 @@
             <br>
             <span>
                 <button id="run-raffle">Run Raffle</button>
-                <span class="hidable hide" id="winner-options">
+                <span class="hide" id="winner-options">
                     <button class="nudge-right" id=clear-winners>Clear Winners</button>
-                    <button class="hidable hide" id="reroll">Reroll Selected</button>
+                    <button class="hide" id="reroll">Reroll Selected</button>
                 </span>
-                <h3 class="hidable hide" id="raffle-message">test<!-- Generated Dynamically --></h3>
+                <h3 class="hide" id="raffle-message">test<!-- Generated Dynamically --></h3>
             </span>
         </div>
-        <br class="hidable hide" id="scroll-point">
+        <br class="hide" id="scroll-point">
         <!-- Raffle Winners -->
-        <div class="hidable hide" id="winners">
+        <div class="hide" id="winners">
             <div class="winner-grid" id="winner-grid"><!-- Generated Dynamically --></div>
         </div>
-        <br><br><br>
+        <br><br>
         <!-- Config Import Overlay -->
-        <div class="hidable hide" id="import-config-overlay">
+        <div class="hide" id="import-config-overlay">
             <div class="file-overlay">
                 <div class="file-overlay-content">
                     <div class="overlay-text">
@@ -163,12 +163,12 @@
                     <label for="import-config-keep-winners">Keep Winners (if present)</label>
                     <br><br>
                     <button id="confirm-import-config">Load Raffle</button>
-                    <h3 class="hidable hide" id="upload-message"><!-- Generated Dynamically --></h3>
+                    <h3 class="hide" id="upload-message"><!-- Generated Dynamically --></h3>
                 </div>
             </div>
         </div>
         <!-- Config Export Overlay -->
-        <div class="hidable hide" id="export-config-overlay">
+        <div class="hide" id="export-config-overlay">
             <div class="file-overlay">
                 <div class="file-overlay-content">
                     <div class="overlay-text">
@@ -184,6 +184,6 @@
                 </div>
             </div>
         </div>
-        <a class="hidable hide" id="download-anchor"><!-- Used to Export Config Files -->></a>
+        <a class="hide" id="download-anchor"><!-- Used to Export Config Files -->></a>
     </body>
 </html>

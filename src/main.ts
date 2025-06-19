@@ -1,8 +1,12 @@
 import { AtpAgent } from "@atproto/api";
 
 // Page functionality
-function toggleElementVisibility(ids: (string | HTMLElement)[], visible?: boolean) {
-    for (let id of ids) {
+
+function toggleElementVisibility(ids: string | HTMLElement | (string | HTMLElement)[], visible?: boolean) {
+    if ((typeof ids === "string") || ids instanceof HTMLElement) {
+        ids = [ids];
+    }
+    ids.forEach((id) => {
         if (typeof id === "string") {
             var element = document.getElementById(id);
         } else {
@@ -10,7 +14,6 @@ function toggleElementVisibility(ids: (string | HTMLElement)[], visible?: boolea
         }
         if (visible !== undefined) {
             if (visible) {
-                element.style.display = "inherit";
                 element.classList.remove("hide");
                 element.classList.add("show");
             } else {
@@ -26,7 +29,7 @@ function toggleElementVisibility(ids: (string | HTMLElement)[], visible?: boolea
                 element.classList.add("show");
             }
         }
-    }
+    });
 }
 
 function createFilterTag(inputText: string | HTMLInputElement, outputList: HTMLElement) {
@@ -82,6 +85,33 @@ function optimizeUserObject(user: Object) {
     return optimizedUser;
 }
 
+function fadeIn(element: HTMLElement) {
+    toggleElementVisibility(element, true);
+    element.style.opacity = "0";
+    let opacity = 0;
+    let fade = window.setInterval(() => {
+        opacity += 0.05;
+        if (opacity <= 1) {
+            element.style.opacity = opacity.toString();
+        } else {
+            window.clearInterval(fade);
+        }
+    }, 20);
+}
+function fadeOut(element: HTMLElement) {
+    element.style.opacity = "1";
+    let opacity = 1;
+    let fade = window.setInterval(() => {
+        opacity -= 0.05;
+        if (opacity <= 1) {
+            element.style.opacity = opacity.toString();
+        } else {
+            window.clearInterval(fade);
+            toggleElementVisibility(element, false);
+        }
+    }, 20);
+}
+
 function showMessage(text: string, { upload=false, type }: { upload?: boolean, type: string }) {
     for (let i = 0; i < 100; i++) {
         window.clearTimeout(i);
@@ -106,10 +136,10 @@ function showMessage(text: string, { upload=false, type }: { upload?: boolean, t
         message.classList.remove("success");
     }
     message.textContent = text;
-    toggleElementVisibility([message], true)
+    fadeIn(message);
     window.setTimeout(() => {
-        toggleElementVisibility([message], false)
-    }, 5000);
+        fadeOut(message);
+    }, 2500);
 }
 
 // Initialize page elements
@@ -118,18 +148,18 @@ importConfigButton.addEventListener("click", () => {
     importConfigFileUploadInput.value = null;
     importConfigKeepLinkInput.checked = true;
     importConfigKeepWinnersInput.checked = true;
-    toggleElementVisibility(["import-config-overlay"], true);
+    toggleElementVisibility("import-config-overlay", true);
     importConfigFileUploadInput.click();
 });
 const importConfigOverlay = document.getElementById("import-config-overlay");
 document.addEventListener("keyup", (event) => {
     if (event.key === "Escape" && importConfigOverlay.className === "show") {
-        toggleElementVisibility([importConfigOverlay], false);
+        toggleElementVisibility(importConfigOverlay, false);
     }
 });
 const importConfigExitButton = document.getElementById("import-exit-button")
 importConfigExitButton.addEventListener("click", () => {
-    toggleElementVisibility([importConfigOverlay], false);
+    toggleElementVisibility(importConfigOverlay, false);
 });
 
 const importConfigFileUploadInput = <HTMLInputElement>document.getElementById("import-config-file-upload");
@@ -146,7 +176,7 @@ confirmImportConfigButton.addEventListener("click", async () => {
     } else {
         let config = JSON.parse(await configFile.text());
         importRaffle(config);
-        toggleElementVisibility([importConfigOverlay], false);
+        toggleElementVisibility(importConfigOverlay, false);
         showMessage("Config import success!", { type: "success" });
     }
 });
@@ -159,13 +189,13 @@ if (event.key === "Escape") {
 });
 const exportConfigExitButton = document.getElementById("export-exit-button");
 exportConfigExitButton.addEventListener("click", () => {  
-    toggleElementVisibility([exportConfigOverlay], false);
+    toggleElementVisibility(exportConfigOverlay, false);
 });
 
 const exportConfigButton = document.getElementById("export-config");
 exportConfigButton.addEventListener("click", () => {
     exportConfigFileNameInput.value = "";
-    toggleElementVisibility([exportConfigOverlay], true);
+    toggleElementVisibility(exportConfigOverlay, true);
 });
 const exportConfigFileNameInput = <HTMLInputElement>document.getElementById("export-config-file-name");
 exportConfigFileNameInput.addEventListener("keyup", (event) => {
@@ -203,7 +233,7 @@ confirmExportConfigButton.addEventListener("click", () => {
         downloadAnchorElement.setAttribute("href", dataStr);
         downloadAnchorElement.setAttribute("download", `${exportFileName}.json`);
         downloadAnchorElement.click();
-        toggleElementVisibility([exportConfigOverlay], false);
+        toggleElementVisibility(exportConfigOverlay, false);
         showMessage("Export successful!", { type: "success" });
     } catch {
         showMessage("Export unsuccessful.", { type: "warning" });
@@ -224,7 +254,7 @@ const repostCheckbox = <HTMLInputElement>document.getElementById("repost");
 
 const commentCheckbox = <HTMLInputElement>document.getElementById("comment");
 commentCheckbox.checked = false;
-commentCheckbox.addEventListener("click", () => toggleElementVisibility(["embed-config"]));
+commentCheckbox.addEventListener("click", () => toggleElementVisibility("embed-config"));
 
 const imageEmbedCheckbox = <HTMLInputElement>document.getElementById("image-embed");
 imageEmbedCheckbox.addEventListener("click", () => {
@@ -255,13 +285,13 @@ anyEmbedCheckbox.addEventListener("click", () => {
 const hostReplyCheckbox = <HTMLInputElement>document.getElementById("host-reply");
 hostReplyCheckbox.checked = false;
 hostReplyCheckbox.addEventListener("click", () => { 
-    toggleElementVisibility(["specific-reply-div"])
+    toggleElementVisibility("specific-reply-div")
 });
 
 const hostReplySpecificCheckbox = <HTMLInputElement>document.getElementById("specific-reply");
 hostReplySpecificCheckbox.checked = false;
 hostReplySpecificCheckbox.addEventListener("click", () => {
-    toggleElementVisibility(["specific-reply-text"])
+    toggleElementVisibility("specific-reply-text")
 });
 
 
@@ -279,7 +309,7 @@ const replyExactMatchCheckbox = <HTMLInputElement>document.getElementById("exact
 
 const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filter-check");
 userFilterCheckbox.checked = false;
-userFilterCheckbox.addEventListener("click", () => toggleElementVisibility(["user-filter"]));
+userFilterCheckbox.addEventListener("click", () => toggleElementVisibility("user-filter"));
 
 const userFilterInput = <HTMLInputElement>document.getElementById("user-filter-text");
 const userFilterList = <HTMLInputElement>document.getElementById("user-filter-list");
@@ -355,11 +385,11 @@ function importRaffle(config: Object) {
     anyEmbedCheckbox.checked = raffleConfig["embedTypes"]["any"];
     hostReplyCheckbox.checked = raffleConfig["hostReply"]["enabled"];
     if (hostReplyCheckbox.checked) {
-        toggleElementVisibility(["specific-reply-div"], true);
+        toggleElementVisibility("specific-reply-div", true);
     }
     hostReplySpecificCheckbox.checked = raffleConfig["hostReply"]["specific"];
     if (hostReplySpecificCheckbox.checked) {
-        toggleElementVisibility(["specific-reply-text"], true);
+        toggleElementVisibility("specific-reply-text", true);
     }
     for (let tag of raffleConfig["hostReply"]["specificReplies"]) {
         createFilterTag(tag, hostReplyList);
@@ -368,7 +398,7 @@ function importRaffle(config: Object) {
     replyExactMatchCheckbox.checked = raffleConfig["hostReply"]["exact"];
     userFilterCheckbox.checked = raffleConfig["blockList"];
     if (userFilterCheckbox.checked) {
-        toggleElementVisibility(["user-filter"], true);
+        toggleElementVisibility("user-filter", true);
     }
     for (let tag of raffleConfig["blockedHandles"]) {
         createFilterTag(tag, userFilterList);
@@ -688,7 +718,7 @@ function toggleReroll(targetId: string) {
             break;
         }
     }
-    toggleElementVisibility([rerollButton], rerollSelected);
+    toggleElementVisibility(rerollButton, rerollSelected);
 }
 
 // Raffle procedure
