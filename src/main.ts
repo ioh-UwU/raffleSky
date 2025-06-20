@@ -2,6 +2,24 @@ import { AtpAgent } from "@atproto/api";
 
 // Page functionality
 
+function scaleCheckboxes({vw, vh}: {vw?: number, vh?:number}) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const vwTarget = width * (vw / 100) / 8;
+    const vhTarget = height * (vh / 100) / 8;
+    const newScale = Math.max(Math.min(vwTarget, vhTarget), 0.4)
+    document.querySelectorAll('.primary-option').forEach((chkbx) => {
+        const checkbox = <HTMLElement>chkbx;
+        checkbox.style.scale = newScale.toString();
+    });
+    document.querySelectorAll('.secondary-option').forEach((chkbx) => {
+        const checkbox = <HTMLElement>chkbx;
+        checkbox.style.scale = (0.75 * newScale).toString();
+    });
+}
+window.addEventListener('resize', () => scaleCheckboxes({ vw: 3, vh: 3 }));
+scaleCheckboxes({ vw: 3, vh: 3 });
+
 function toggleElementVisibility(ids: string | HTMLElement | (string | HTMLElement)[], visible?: boolean) {
     if ((typeof ids === "string") || ids instanceof HTMLElement) {
         ids = [ids];
@@ -143,6 +161,7 @@ function showMessage(text: string, { upload=false, type }: { upload?: boolean, t
 }
 
 // Initialize page elements
+
 const importConfigButton = document.getElementById("import-config");
 importConfigButton.addEventListener("click", () => {
     importConfigFileUploadInput.value = null;
@@ -335,6 +354,7 @@ var candidates = [];
 var winners = [];
 
 // Config
+
 function getRaffleConfig() {
     let raffleConfig = {
         link: linkInput.value,
@@ -415,13 +435,13 @@ function importRaffle(config: Object) {
     }
 }
 
-// API calls
 async function signIn() {
     let agent = new AtpAgent({service: "https://public.api.bsky.app"});
     return agent;
 }
 
 // Raffle data requests
+
 async function getHostInfo(agent: AtpAgent, link: string) {
     let splitUri = link.replace("//", "/").split("/");
     let linkType = link.substring(0, 5) === "at://" ? "at" : "https";
@@ -722,6 +742,7 @@ function toggleReroll(targetId: string) {
 }
 
 // Raffle procedure
+
 async function runRaffle() {
     showMessage("Please wait...", { type: "message" });
     clearWinners();

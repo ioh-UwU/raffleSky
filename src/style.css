@@ -21,13 +21,13 @@ link [rel="icon"] {
 
 /* Containers */
 .component-group {
-    width: max(700px, 45%);
+    width: max(300px, 60%);
     margin: auto;
     margin-top: 2%;
     margin-bottom: 2%;
     padding: 2%;
     background-color: #212c39;
-    border-radius: 30px;
+    border-radius: 3vw;
 }
 .component-subgroup {
     margin: 2%;
@@ -38,13 +38,36 @@ link [rel="icon"] {
     border-radius: 10px;
 }
 
+.promo-links {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+}
+
+.file-buttons {
+    display: inline;
+}
+
 .embed-options {
-    display: grid;
-    grid-template-columns: repeat(4, 25%);
-    justify-content: space-around;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 1%;
+    margin-bottom: 0%;
 }
 .embed-option-span {
-    text-align: center;
+    flex: 1 1 calc(50% - 1rem);
+    text-wrap: nowrap;
+}
+
+@media (max-width: 350px) {
+    .embed-options {
+        flex-direction: column;
+    }
+    .embed-option-span {
+        flex: 1 1 100%;
+    }
 }
 
 /* Text */
@@ -53,9 +76,8 @@ h1 {
     margin-top: 1%;
     padding-bottom: 0%;
     color: white;
-    font-family: Arial, Helvetica, sans-serif;;
-    text-wrap: nowrap;
-    
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: max(3vw, 16px)
 }
 
 h2 {
@@ -63,15 +85,13 @@ h2 {
     margin-left: 1%;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(15pt, 3vw, 20pt);
-    text-wrap: nowrap;
+    font-size: max(2vw, 12px);
 }
 h2.slim {
     padding-top: 0%;
     padding-bottom: 0%;
     color: rgb(163, 163, 163);
     font-style: italic;
-    text-wrap: nowrap;
 }
 
 h3 {
@@ -106,12 +126,17 @@ p {
 
 label {
     padding-bottom: 0.5%;
+    vertical-align: middle;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
+    font-size: max(2vw, 12px);
+    text-wrap: nowrap;
 }
+
 label.input-label {
-    line-height: 20pt;
-    font-size: larger;
+    margin-left: 1%;
+    line-height: 3vw;
+    font-size: max(2vw, 12px);
 }
 
 a {
@@ -124,72 +149,75 @@ a:hover {
 
 /* Images */
 .button-image {
-    transform:translateY(4px);
-    height: 20px;
+    vertical-align: middle;
+    height: 2vw;
 }
 
 /* Inputs */
 textarea {
     width: 70%;
-    margin-top: 1%;
-    margin-bottom: 1%;
+    margin: 1%;
     padding-left: 1.2%;
     padding-top: 0.6%;
     background-color: #161e27;
     color: white;
-    border-radius: 8px;
+    border-width: min(0.5vw, 0.3vh);
+    border-radius: min(2vw, 1vh);
     border-color: #212c39;
     border-style: solid;
     font-family: Arial, Helvetica, sans-serif;
+    font-size: min(2vw, 3vh);
     resize: none;
 }
 .long {
-    width: max(450px, 50%);
-    height: 30px;
-    padding-left: 10px;
-    border-radius: 5px;
+    width: 50vw;
+    height: max(min(4vw, 7vh), 20px);
+    margin-left: 1%;
+    padding-left: min(22vw, 1%);
+    border-width: min(0.5vw, 0.3vh);
+    border-radius: min(2vw, 1vh);
     border-style: hidden;
+    font-size: max(2vw, 12px);
 }
 .short {
-    width: max(200px, 20%);
-    height: 30px;
-    padding-left: 10px;
-    border-radius: 5px;
+    width: max(16vw, 40%);
+    height: max(5vh, 30px);
+    border-width: min(0.5vw, 0.3vh);
+    border-radius: min(2vw, 1vh);
     border-style: hidden;
+    text-align: center;
 }
 
 input[type="number"] {
-    width: 160px;
-    border-radius: 5px;
+    width: max(16vw, 20%);
+    margin-left: 1%;
+    line-height: max(2vw, 3vh);
+    border-radius: min(2vw, 1vh);
     border-style: hidden;
-    line-height: 20pt;
+    font-size: max(2vw, 12px);
     text-align: center;
-    font-size: medium;
-    font-weight: bold;
 }
 
 button, 
 .button {
-    margin: 0.5%;
-    margin-right: 1%;
-    padding: 1%;
-    padding-inline: 1.4%;
+    margin: 0.5vw;
     color: white;
+    padding: min(1%, 0.4vw);
     background-color: rgb(0, 140, 255);
-    border-width: 2px;
-    border-radius: 10px;
+    border-width: min(1vw, 0.5vh);
+    border-radius: min(2vw, 1vh);
     border-color: rgb(0, 140, 255); /* Fallback for browsers that don't support rgba */
     border-color: rgba(0, 0, 0, 0);
     border-style: solid;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 100%;
+    font-size: max(min(1.5vw, 2.5vh), 10px);
     font-weight: bold;
     text-decoration: none;
     text-wrap: nowrap;
 }
 button:hover,
 .button:hover {
-    color: rgb(255, 255, 255);
+    color: white;
     border-color: white;
 }
 button:active,
@@ -197,7 +225,7 @@ button:active,
     background-color: rgb(104, 187, 255);
 }
 button.nudge-right {
-    margin-right: 1.5%;
+    margin-right: 1.5vw;
 }
 
 .tag {
@@ -211,17 +239,16 @@ button.nudge-right {
 }
 
 .primary-option {
-    transform: scale(2);
     max-width: fit-content;
-    margin: 2%;
-    margin-top: 15px;
-    margin-bottom:15px;
+    margin: min(4vw, 3vh);
+    margin-right: 0;
 }
 .secondary-option {
-    transform: scale(1.5);
     max-width: fit-content;
     margin: 2%;
-    margin-right: 8px;
+    margin-right: 1.5vw;
+    vertical-align: middle;
+    font-size: max(1.5vw, 10px);
 }
 
 /* Winner Display Style Components */
@@ -309,17 +336,17 @@ button.nudge-right {
     height: 100%;
     left: 0;
     top: 0;
-    overflow-x: hidden;
     z-index: 1;
+    overflow-x: hidden;
     background-color:#161e27; /* Fallback for browsers that don't support rgba */
     background-color:rgba(0,0,0,0.5);
 }
 .file-overlay-content {
-    position: relative;
+    position: fixed;
     width: 50%;
     height: fit-content;
-    top: 20%;
-    margin: auto;
+    top: 23%;
+    left:23%;
     padding: 2%;
     background-color: #212c39;
     border-radius: 2vh;
@@ -331,7 +358,7 @@ button.nudge-right {
     margin-bottom: 2vh;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: max(2vw, 3vh);
+    font-size: min(7vw, 3vh);
     font-weight: bold;
 }
 
@@ -339,13 +366,12 @@ button.nudge-right {
 .exit-button {
     position: relative;
     float: right;
-    transform: translateY(-1vh);
     margin-left: auto; 
     margin-right: 0;
     margin-bottom: inherit;
     background-color: rgb(255, 103, 103);
     border-radius: 100%;
-    font-size: 2vh;
+    font-size: min(2vw, 1.5vh);
     font-style: bold;
 }
 .exit-button:active {

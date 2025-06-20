@@ -17,25 +17,28 @@
             <h1>ioh's Bluesky Raffle Utility</i></h1>
             <h2 class="slim">Run raffles on Bluesky posts through the API!</h2>
             <br><br>
-                    <a class="button" href="https://bsky.app/profile/iohtheprotogen.art" target="_blank" rel="noopener noreferrer">
+            <span class="promo-links">
+                <a class="promo button" href="https://bsky.app/profile/iohtheprotogen.art" target="_blank" rel="noopener noreferrer">
                     <img class="button-image" src="src/images/bsky-logo.png" alt="Bluesky logo">
                     &nbsp;Follow me on Bluesky
                 </a>
-                <a class="button" href="https://ko-fi.com/iohtheprotogen" target="_blank" rel="noopener noreferrer">
+                <a class="promo button" href="https://ko-fi.com/iohtheprotogen" target="_blank" rel="noopener noreferrer">
                     <img class="button-image" src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a01229bf8a18f97a3c1_favion-p-500.png" alt="Ko-Fi logo">
                     &nbsp;Support me on Ko-Fi
                 </a>
-                <a class="button" href="https://github.com/ioh-UwU/raffleSky" target="_blank" rel="noopener noreferrer">
+                <a class="promo button" href="https://github.com/ioh-UwU/raffleSky" target="_blank" rel="noopener noreferrer">
                     <img class="button-image" src="src/images/github-logo.png" alt="GitHub logo">
                     &nbsp;Source Repository
                 </a>
-            <br><br>
+            </span>
         </div>
         <!-- Raffle Options -->
         <div class="component-group" id="settings">
             <h2>Raffle Config&ensp;</h2>
-            <button id="export-config">Save Raffle</button>
-            <button id="import-config">Load Raffle</button>
+            <span class="file-buttons">
+                <button id="export-config">Save Raffle</button>
+                <button id="import-config">Load Raffle</button>
+            </span>
             <br>
             <!-- Post Link -->
             <label class="input-label" for="link">Link to post:</label>
@@ -49,64 +52,64 @@
             <br><br>
             <!-- Require Follower -->
             <input class="primary-option" type="checkbox" id="follow">
-            <label for="follow">Follow</label>
+            <label class="primary-option" for="follow">Follow</label>
             <br>
             <!-- Require Like -->
             <input class="primary-option" type="checkbox" id="like">
-            <label for="like">Like</label>
+            <label class="primary-option" for="like">Like</label>
             <br>
             <!-- Require Repost -->
             <input class="primary-option" type="checkbox" id="repost">
-            <label for="repost">Repost</label>
+            <label class="primary-option" for="repost">Repost</label>
             <br>
             <!-- Require Comment -->
             <input class="primary-option" type="checkbox" id="comment">
-            <label for="comment">Comment</label>
+            <label class="primary-option" for="comment">Comment</label>
             <br>
             <!-- Comment Embed Filters -->
             <div class="hide" id="embed-config">
                 <div class="component-subgroup">
                     <div class="embed-options">
+                        <!-- Any Embed -->
+                        <span class="embed-option-span">
+                            <input class="secondary-option" type="checkbox" id="any-embed">
+                            <label class="secondary-option" for="any-embed">With any embed</label>
+                        </span>
                         <!-- Image -->
                         <span class="embed-option-span">
                             <input class="secondary-option" type="checkbox" id="image-embed">
-                            <label for="image-embed">with image</label>
+                            <label class="secondary-option" for="image-embed">With image</label>
                         </span>
                         <!-- Video -->
                         <span class="embed-option-span"> 
                             <input class="secondary-option" type="checkbox" id="video-embed">
-                            <label for="video-embed">with video</label>
+                            <label class="secondary-option" for="video-embed">With video</label>
                         </span>
                         <!-- GIF -->
                         <span class="embed-option-span">
                             <input class="secondary-option" type="checkbox" id="gif-embed">
-                            <label for="gif-embed">with GIF</label>
-                        </span>
-                        <!-- Any Embed -->
-                        <span class="embed-option-span">
-                            <input class="secondary-option" type="checkbox" id="any-embed">
-                            <label for="any-embed">with embed</label>
+                            <label class="secondary-option" for="gif-embed">With GIF</label>
                         </span>
                     </div>
-                    <br>
+                    <br><br><br>
                     <!-- Require Host Reply -->
-                    <div id="host-reply-div">
-                        <input class="primary-option" type="checkbox" id="host-reply">
-                        <label for="host-reply">with host reply</label>
+                    <div class="host-reply-div" id="host-reply-div">
+                        <input class="secondary-option" type="checkbox" id="host-reply">
+                        <label class="secondary-option" for="host-reply">With host reply</label>
                         <!-- Specific Host Reply Filters -->
                         <span class="hide" id="specific-reply-div">
                             <input class="secondary-option" type="checkbox" id="specific-reply">
-                            <label for="specific-reply">with specific text</label>
+                            <label class="secondary-option" for="specific-reply">With specific text</label>
                             <div class="hide" id="specific-reply-text">
                                 <textarea id="reply-text" rows="5" cols="44" placeholder="Type your reply text, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                                 <br>
                                 <button id="add-reply-button">Add</button>
                                 <!-- Case Sensitive -->
                                 <input class="secondary-option" type="checkbox" id="case-sensitive">
-                                <label for="case-sensitive">Case Sensitive</label>
+                                <label class="secondary-option" for="case-sensitive">Case Sensitive</label>
                                 <!-- Exact Match -->
                                 <input class="secondary-option" type="checkbox" id="exact-match">
-                                <label for="specific-reply">Exact Match</label>
+                                <label class="secondary-option" for="specific-reply">Exact Match</label>
                                 <br>
                                 <div id="reply-text-list"><!-- Generated Dynamically --></div>
                             </div>
@@ -116,7 +119,7 @@
             </div>
             <!-- Block List -->
             <input class="primary-option" type="checkbox" id="user-filter-check">
-            <label for="user-filter-check">User Filter</label>
+            <label class="primary-option" for="user-filter-check">User Filter</label>
             <br>
             <div class="hide" id="user-filter">
                 <div class="component-subgroup">
