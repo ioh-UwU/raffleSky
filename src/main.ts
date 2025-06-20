@@ -2,7 +2,7 @@ import { AtpAgent } from "@atproto/api";
 
 // Page functionality
 
-function scaleCheckboxes({vw, vh}: {vw?: number, vh?:number}) {
+function scaleCheckboxes({vw=0, vh=0}: {vw?: number, vh?:number}) {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const vwTarget = width * (vw / 100) / 8;
