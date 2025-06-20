@@ -10,7 +10,7 @@ Raffles may be exported to be reused later.
 * ✅ Options to import and export configurations and full raffles, including chosen and rerolled winners. <br>
 * ✅ Mobile layout improvements.
 * 🔜 Options for required content in candidate comments.
-* Option for minimum account age.
+* ✅ Option for minimum account age.
 * Options for minimum and maximum follower/following counts.
 * Regex support for all text filters (blocked users, host and candidate comments, and any additional fields).
 * Options to configure bonus entries.
