@@ -103,6 +103,7 @@ function optimizeUserObject(user: Object) {
     return optimizedUser;
 }
 
+var messageTimers = [];
 function fadeIn(element: HTMLElement) {
     toggleElementVisibility(element, true);
     element.style.opacity = "0";
@@ -115,6 +116,7 @@ function fadeIn(element: HTMLElement) {
             window.clearInterval(fade);
         }
     }, 20);
+    messageTimers.push(fade);
 }
 function fadeOut(element: HTMLElement) {
     element.style.opacity = "1";
@@ -128,12 +130,13 @@ function fadeOut(element: HTMLElement) {
             toggleElementVisibility(element, false);
         }
     }, 20);
+    messageTimers.push(fade);
 }
 
 function showMessage(text: string, { upload=false, type }: { upload?: boolean, type: string }) {
-    for (let i = 0; i < 100; i++) {
-        window.clearTimeout(i);
-    }
+    messageTimers.forEach((t) => {
+        window.clearTimeout(t);
+    });
     if (upload) {
         var message = document.getElementById("upload-message");
     } else {
@@ -155,9 +158,10 @@ function showMessage(text: string, { upload=false, type }: { upload?: boolean, t
     }
     message.textContent = text;
     fadeIn(message);
-    window.setTimeout(() => {
+    let fadeOutDelay = window.setTimeout(() => {
         fadeOut(message);
     }, 2500);
+    messageTimers.push(fadeOutDelay);
 }
 
 // Initialize page elements
@@ -330,6 +334,9 @@ const userFilterCheckbox = <HTMLInputElement>document.getElementById("user-filte
 userFilterCheckbox.checked = false;
 userFilterCheckbox.addEventListener("click", () => toggleElementVisibility("user-filter"));
 
+const minimumAgeValueInput = <HTMLInputElement>document.getElementById("minimum-age-value");
+const minimumAgeUnitInput = <HTMLInputElement>document.getElementById("minimum-age-units");
+
 const userFilterInput = <HTMLInputElement>document.getElementById("user-filter-text");
 const userFilterList = <HTMLInputElement>document.getElementById("user-filter-list");
 userFilterInput.addEventListener("keyup", (event) => tagTextboxShortcuts(event, userFilterInput, userFilterList));
@@ -358,7 +365,6 @@ var winners = [];
 function getRaffleConfig() {
     let raffleConfig = {
         link: linkInput.value,
-
         winners: numWinnersInput.valueAsNumber,
         follow: followCheckbox.checked,
         like: likeCheckbox.checked,
@@ -378,6 +384,8 @@ function getRaffleConfig() {
             exact: replyExactMatchCheckbox.checked
         },
         blockList: userFilterCheckbox.checked,
+        minimumAgeNumber: minimumAgeValueInput.valueAsNumber,
+        minimumAgeUnit: minimumAgeUnitInput.value,
         blockedHandles: getTags(userFilterList)
     }
     return raffleConfig;
@@ -420,6 +428,8 @@ function importRaffle(config: Object) {
     if (userFilterCheckbox.checked) {
         toggleElementVisibility("user-filter", true);
     }
+    minimumAgeValueInput.value = raffleConfig["minimumAgeNumber"];
+    minimumAgeUnitInput.value = raffleConfig["minimumAgeUnit"];
     for (let tag of raffleConfig["blockedHandles"]) {
         createFilterTag(tag, userFilterList);
     }
@@ -578,7 +588,17 @@ function getCommentActors(comments: Object) {
     return output;
 }
 
-function getCandidates(candidateGroups: Array<Array<Object>>, denyList: Array<string>) {
+function getCandidates(candidateGroups: Array<Array<Object>>, raffleConfig: Object) {
+    const minimumAge = {
+        num: raffleConfig["minimumAgeNumber"], 
+        unit: raffleConfig["minimumAgeUnit"] 
+    }
+    const divisors = {
+        hours: 1000 * 60 * 60,
+        days: 1000 * 60 * 60 * 24,
+        months: 1000 * 60 * 60 * 24 * 30.44,
+        years: 1000 * 60 * 60 * 24 * 365.25
+    }
     let prevBuffer = [];
     let output = [];
     let firstGroup = true;
@@ -603,8 +623,13 @@ function getCandidates(candidateGroups: Array<Array<Object>>, denyList: Array<st
         }
     }
     // Apply user filter and add "rerolled" property (used by imported configs).
+    const now = new Date();
     for (let [_, candidate] of Object.entries(prevBuffer)) {
-        if (!denyList.includes(candidate["handle"])) {
+        const accountCreated = new Date(candidate["createdAt"])
+        const dateDifference = now.getTime() - accountCreated.getTime();
+        const ageCompare = dateDifference / divisors[minimumAge.unit]
+        const ageThreshold = minimumAge.num;
+        if (!raffleConfig["blockList"] || !raffleConfig["blockedHandles"].includes(candidate["handle"]) && ageCompare > ageThreshold) {
             Object.defineProperty(candidate, "rerolled", { value: false, writable: true, enumerable: true });
             output.push(candidate);
         }
@@ -786,7 +811,7 @@ async function runRaffle() {
         }
         comments = getCommentActors(comments);
     }
-    candidates = getCandidates([follows, likes, reposts, comments], raffleConfig.blockedHandles);
+    candidates = getCandidates([follows, likes, reposts, comments], raffleConfig);
     if (candidates.length > 0) {
         winners = candidates.length > raffleConfig.winners ? pickWinners({ numWinners: raffleConfig.winners }) : candidates;
     } else {

@@ -45,13 +45,8 @@ link [rel="icon"] {
     align-items: center;
 }
 
-.file-buttons {
-    display: inline;
-}
-
 .embed-options {
     display: flex;
-    gap: 1.5rem;
     flex-wrap: wrap;
     margin: 1%;
     margin-bottom: 0%;
@@ -190,11 +185,23 @@ textarea {
 
 input[type="number"] {
     width: max(16vw, 20%);
-    margin-left: 1%;
-    line-height: max(2vw, 3vh);
+    height: 20%;
+    transform: translateY(min(0.8vh, 0.6vw));
+    margin: 0% 1%;
     border-radius: min(2vw, 1vh);
     border-style: hidden;
     font-size: max(2vw, 12px);
+    text-align: center;
+}
+
+select {
+    height: 20%;
+    padding: min(1%, 0.8vw);
+    background-color: white;
+    border-radius: min(2vw, 1vh);
+    border-style: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: max(min(2vw, 2vh), 8px);
     text-align: center;
 }
 

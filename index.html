@@ -35,10 +35,8 @@
         <!-- Raffle Options -->
         <div class="component-group" id="settings">
             <h2>Raffle Config&ensp;</h2>
-            <span class="file-buttons">
-                <button id="export-config">Save Raffle</button>
-                <button id="import-config">Load Raffle</button>
-            </span>
+            <button id="export-config">Save Raffle</button>
+            <button id="import-config">Load Raffle</button>
             <br>
             <!-- Post Link -->
             <label class="input-label" for="link">Link to post:</label>
@@ -91,7 +89,7 @@
                             <label class="secondary-option" for="gif-embed">With GIF</label>
                         </span>
                     </div>
-                    <br><br>
+                    <br>
                     <!-- Require Host Reply -->
                     <div class="host-reply-div" id="host-reply-div">
                         <input class="secondary-option" type="checkbox" id="host-reply">
@@ -123,6 +121,17 @@
             <br>
             <div class="hide" id="user-filter">
                 <div class="component-subgroup">
+                    <!-- Number of Winners -->
+                    <label class="input-label" for="minimum-age">Minimum Account Age:</label>
+                    <input type="number" id="minimum-age-value" min="0" placeholder="#" value="0" oninput="validity.valid||(value='0');">
+                    <select class="" id="minimum-age-units">
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="months">Months</option>
+                        <option value="years">Years</option>
+                    </select>
+                    <br>
+                    <!-- Specific User Filter -->
                     <textarea id="user-filter-text" rows="5" cols="44" placeholder="Type a user's handle, then click 'Add' to add it to the list.&#10;&#10;Click an item to remove it from the list."></textarea>
                     <br>
                     <button id="add-user-filter-button">Add</button>
